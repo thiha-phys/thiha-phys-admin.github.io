@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f7fb">
+    <link rel="manifest" href="manifest.webmanifest">
+    <title>UTHK Admin</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="icons/app-icon-192.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <a class="brand" href="./index.html"><img src="logo.png" alt=""><span><strong>UTHK</strong><small>ADMIN PANEL</small></span></a>
+            <span class="topbar-note"><i class="fa-solid fa-circle-check"></i> စီမံခန့်ခွဲမှုစနစ်</span>
+        </header>
+
+        <section class="welcome-panel">
+            <div>
+                <p class="eyebrow">PHYSICS LEARNING HUB</p>
+                <h1>မင်္ဂလာပါ 👋</h1>
+                <p class="muted">အမှာစာများ၊ စာအုပ်လက်ကျန်နှင့် ဘောက်ချာများကို တစ်နေရာတည်းမှ စီမံပါ။</p>
+            </div>
+            <div class="welcome-icon"><i class="fa-solid fa-chart-line"></i></div>
+        </section>
+
+        <section class="section-block" aria-labelledby="overview-title">
+            <div class="section-heading"><div><p class="eyebrow">OVERVIEW</p><h2 id="overview-title">အမှာစာ အကျဉ်းချုပ်</h2></div><div class="heading-tools"><span id="dashboard-updated" class="muted small">ဖုန်းတွင်းသိမ်းဆည်းထားသော data</span><button id="refresh-dashboard" class="icon-button" type="button" aria-label="Google Sheet မှ data အသစ်ရယူရန်" title="Google Sheet မှအသစ်ရယူရန်"><i class="fa-solid fa-rotate"></i></button></div></div>
+            <div class="stats-grid">
+                <article class="stat-card"><span class="stat-icon blue"><i class="fa-solid fa-receipt"></i></span><div><span>စုစုပေါင်းအမှာ</span><strong id="stat-orders">—</strong></div></article>
+                <article class="stat-card"><span class="stat-icon green"><i class="fa-solid fa-money-bill-wave"></i></span><div><span>လက်ခံရရှိငွေ</span><strong id="stat-received">—</strong></div></article>
+                <article class="stat-card"><span class="stat-icon orange"><i class="fa-solid fa-hourglass-half"></i></span><div><span>ကျန်ငွေ</span><strong id="stat-outstanding">—</strong></div></article>
+                <article class="stat-card"><span class="stat-icon purple"><i class="fa-solid fa-truck-fast"></i></span><div><span>ပို့ဆောင်ပြီး</span><strong id="stat-delivered">—</strong></div></article>
+            </div>
+            <article class="chart-card">
+                <div class="section-heading"><div><h3>နောက်ဆုံး ၇ ရက် အမှာစာ</h3><p class="muted small">Order Date အလိုက်</p></div></div>
+                <div id="orders-chart" class="mini-chart" aria-label="နောက်ဆုံး ၇ ရက် အမှာစာ အရေအတွက်"></div>
+            </article>
+        </section>
+
+        <section class="section-block" aria-labelledby="actions-title">
+            <div class="section-heading"><div><p class="eyebrow">TOOLS</p><h2 id="actions-title">လုပ်ဆောင်ရန်</h2></div></div>
+            <nav class="action-grid" aria-label="Admin tools">
+                <a class="action-card" href="pages/createorder.html"><span class="action-icon blue"><i class="fa-solid fa-cart-plus"></i></span><span><strong>အမှာစာအသစ်</strong><small>Create Order</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                <a class="action-card" href="pages/historyorder.html"><span class="action-icon purple"><i class="fa-solid fa-clock-rotate-left"></i></span><span><strong>အမှာစာမှတ်တမ်း</strong><small>Order History</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                <a class="action-card" href="pages/chnagerequest.html"><span class="action-icon orange"><i class="fa-solid fa-pen-to-square"></i></span><span><strong>အမှာစာပြင်ဆင်ရန်</strong><small>Change Request</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                <a class="action-card" href="pages/createvoucher.html"><span class="action-icon green"><i class="fa-solid fa-file-invoice"></i></span><span><strong>ဘောက်ချာပြန်ထုတ်ရန်</strong><small>Create Voucher</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+                <a class="action-card" href="pages/checkstock.html"><span class="action-icon rose"><i class="fa-solid fa-boxes-stacked"></i></span><span><strong>စာအုပ်လက်ကျန်</strong><small>Check Stock</small></span><i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i></a>
+            </nav>
+        </section>
+        <footer class="app-footer">UTHK Admin · Physics Learning Hub</footer>
+    </main>
+    <script src="pages/admin-api.js"></script>
+    <script src="pages/home.js"></script>
+</body>
+</html>

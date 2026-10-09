@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ဘောက်ချာပြန်ထုတ်ရန် | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top no-print"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">ဘောက်ချာပြန်ထုတ်ရန်</h1><p class="page-subtitle">Voucher No၊ အမည် သို့မဟုတ် ဖုန်းဖြင့် မှာယူမှုကိုရှာပါ။</p></div></header>
+    <section class="panel no-print">
+        <form id="voucher-search-form" class="search-row"><input id="voucher-query" class="search-input" type="search" placeholder="Voucher No / အမည် / ဖုန်း" required><button class="primary-button" type="submit"><i class="fa-solid fa-magnifying-glass"></i> ရှာရန်</button></form>
+        <div class="history-refresh-row"><span id="voucher-cache-status" class="muted small">ဖုန်းတွင်းသိမ်းဆည်းထားသော data</span><button id="refresh-vouchers" class="icon-button" type="button" aria-label="Google Sheet မှ data အသစ်ရယူရန်" title="Google Sheet မှအသစ်ရယူရန်"><i class="fa-solid fa-rotate"></i></button></div>
+        <p id="voucher-status" class="status-message" role="status"></p><div id="voucher-results" class="result-list"></div>
+    </section>
+    <section id="receipt" class="receipt" hidden>
+        <div class="receipt-head"><div class="receipt-heading"><p class="eyebrow">PHYSICS LEARNING HUB</p><h2>မှာယူမှု ဘောက်ချာ</h2><strong id="receipt-voucher"></strong></div><img class="receipt-logo" src="../logo.png" alt="UTHK logo"></div>
+        <div id="receipt-info" class="receipt-grid"></div><div id="receipt-items"></div>
+        <div class="receipt-total"><span>စုစုပေါင်း</span><strong id="receipt-total"></strong></div>
+        <div class="no-print button-row"><button id="print-voucher" class="primary-button" type="button"><i class="fa-solid fa-print"></i> Print / Save PDF</button></div>
+    </section>
+</main>
+<script src="admin-api.js"></script><script src="createvoucher.js"></script>
+</body></html>

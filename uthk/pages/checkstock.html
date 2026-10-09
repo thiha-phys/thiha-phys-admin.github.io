@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>စာအုပ်လက်ကျန် | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">စာအုပ်လက်ကျန်</h1><p class="page-subtitle">Stock အသစ်စာရင်းသွင်းပြီး ပို့ပြီးသားအမှာများနုတ်ထားသော လက်ကျန်ကိုကြည့်ပါ။</p></div></header>
+    <section class="panel">
+        <h2>စာအုပ် stock အသစ်ထည့်ရန်</h2>
+        <form id="stock-form" class="form-grid">
+            <label class="field">စာအုပ်အမျိုးအစား<select name="bookId" id="stock-book" required></select></label>
+            <label class="field">ထည့်သည့်ရက်စွဲ<input name="date" type="date" required></label>
+            <label class="field">အုပ်ရေ<input name="quantity" type="number" min="1" step="1" inputmode="numeric" required></label>
+            <div class="field"><span>&nbsp;</span><button id="add-stock" class="primary-button" type="submit"><i class="fa-solid fa-plus"></i> Stock ထည့်ရန်</button></div>
+        </form>
+        <p id="stock-status" class="status-message" role="status"></p>
+    </section>
+    <section class="panel"><div class="section-heading"><div><h2>လက်ကျန်စာရင်း</h2><span id="stock-cache-status" class="muted small">ဖုန်းတွင်းသိမ်းဆည်းထားသော data</span></div><button id="refresh-stock" class="secondary-button" type="button"><i class="fa-solid fa-rotate"></i> Google Sheet မှ ပြန်ရယူရန်</button></div>
+        <div id="stock-grid" class="stock-grid"></div>
+    </section>
+</main>
+<script src="admin-api.js"></script><script src="checkstock.js"></script>
+</body></html>

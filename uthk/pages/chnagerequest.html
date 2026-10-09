@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>စာရင်းပြင်ဆင်ရန် | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">အမှာစာပြင်ဆင်ရန်</h1><p class="page-subtitle">ဘောက်ချာနံပါတ်၊ အမည် သို့မဟုတ် ဖုန်းဖြင့်ရှာပြီး မူလ row ကိုပြင်ပါ။</p></div></header>
+    <section class="panel">
+        <h2>စာရင်းရှာရန်</h2><form id="lookup-form" class="search-row"><input id="lookup-query" class="search-input" type="search" placeholder="Voucher No / အမည် / ဖုန်း" required><button class="primary-button" type="submit"><i class="fa-solid fa-magnifying-glass"></i> ရှာရန်</button></form>
+        <div class="history-refresh-row"><span id="lookup-cache-status" class="muted small">ဖုန်းတွင်းသိမ်းဆည်းထားသော data</span><button id="refresh-orders" class="icon-button" type="button" aria-label="Google Sheet မှ data အသစ်ရယူရန်" title="Google Sheet မှအသစ်ရယူရန်"><i class="fa-solid fa-rotate"></i></button></div>
+        <p id="lookup-status" class="status-message" role="status"></p><div id="lookup-results" class="result-list"></div>
+    </section>
+    <section id="edit-panel" class="panel" hidden>
+        <h2>အမှာစာအချက်အလက် ပြင်ဆင်ရန်</h2>
+        <p class="search-hint">ဘောက်ချာနံပါတ်ကို မပြင်နိုင်ပါ။ ပြင်ဆင်ချက်ကို ရှိပြီးသား row ထဲတွင်သာ သိမ်းပါမည်။</p>
+        <form id="edit-form"><div id="edit-fields" class="edit-grid"></div>
+            <div class="button-row"><button id="save-order" class="primary-button" type="submit"><i class="fa-solid fa-floppy-disk"></i> ပြင်ဆင်ချက် သိမ်းရန်</button></div>
+            <p id="edit-status" class="status-message" role="status"></p>
+        </form>
+    </section>
+</main>
+<script src="admin-api.js"></script><script src="chnagerequest.js"></script>
+</body></html>

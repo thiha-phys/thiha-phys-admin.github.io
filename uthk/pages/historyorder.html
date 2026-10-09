@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>အမှာစာမှတ်တမ်း | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">အမှာစာမှတ်တမ်း</h1><p class="page-subtitle">လိုအပ်သည့် ရှာဖွေနည်းတစ်ခုကို ရွေးချယ်ပါ။</p></div></header>
+    <section class="panel">
+        <div class="history-modes" role="group" aria-label="အမှာစာရှာဖွေနည်း">
+            <button class="history-mode is-active" type="button" data-mode="search" aria-pressed="true"><i class="fa-solid fa-magnifying-glass"></i><span>အမှာရှာရန်</span></button>
+            <button class="history-mode" type="button" data-mode="date" aria-pressed="false"><i class="fa-solid fa-calendar-days"></i><span>ရက်စွဲဖြင့်</span></button>
+            <button class="history-mode" type="button" data-mode="undelivered" aria-pressed="false"><i class="fa-solid fa-truck-fast"></i><span>မပို့ရသေး</span></button>
+            <button class="history-mode" type="button" data-mode="unpaid" aria-pressed="false"><i class="fa-solid fa-money-bill-wave"></i><span>ငွေမချေရသေး</span></button>
+        </div>
+        <div class="history-refresh-row"><span id="history-cache-status" class="muted small">ဖုန်းတွင်းသိမ်းဆည်းထားသော data</span><button id="refresh-history" class="icon-button" type="button" aria-label="Google Sheet မှ data အသစ်ရယူရန်" title="Google Sheet မှအသစ်ရယူရန်"><i class="fa-solid fa-rotate"></i></button></div>
+        <div id="search-tools" class="history-tools">
+            <label class="field">Voucher No / အမည် / ဖုန်း<input id="search" class="search-input" type="search" placeholder="ရှာဖွေရန် ရိုက်ထည့်ပါ"></label>
+        </div>
+        <div id="date-tools" class="history-tools" hidden>
+            <label class="field">စတင်ရက်စွဲ<input id="date-from" type="date"></label>
+            <label class="field">နောက်ဆုံးရက်စွဲ<input id="date-to" type="date"></label>
+        </div>
+        <p id="mode-description" class="search-hint">ဘောက်ချာနံပါတ်၊ အမည် သို့မဟုတ် ဖုန်းနံပါတ်ဖြင့် ရှာပါ။</p>
+        <p id="history-status" class="status-message" role="status"></p>
+        <div id="order-list" class="order-list"></div>
+    </section>
+</main>
+<script src="admin-api.js"></script><script src="historyorder.js"></script>
+</body></html>
