@@ -1,12 +1,29 @@
-const fields = [
-    'Name', 'Address', 'Phone', 'Order Date',
-    'Special Qty', 'Special Amount', 'Practice Qty', 'Practice Amount',
-    'Old Questions Qty', 'Old Questions Amount', 'Solution Qty', 'Solution Amount',
-    'Grade 11 Handbook Qty', 'Grade 11 Handbook Amount',
-    'Grade 11 Objective Qty', 'Grade 11 Objective Amount',
-    'Grade 10 Handbook Qty', 'Grade 10 Handbook Amount', 'Total',
-    'Payment Method', 'Amount Received', 'KPay Account', 'Pay Date',
-    'Royal VOC No', 'Delivered Date', 'Delivery', 'Facebook Account Name'
+const fieldGroups = [
+    {
+        title: 'မှာယူသူအချက်အလက်',
+        fields: ['Name', 'Phone', 'Phone 2', 'Address', 'Order Date']
+    },
+    {
+        title: 'စာအုပ်စာရင်းနှင့် ကျသင့်ငွေ',
+        fields: [
+            'Special Qty', 'Special Amount', 'Practice Qty', 'Practice Amount',
+            'Old Questions Qty', 'Old Questions Amount', 'Solution Qty', 'Solution Amount',
+            'Grade 11 Handbook Qty', 'Grade 11 Handbook Amount',
+            'Grade 11 Objective Qty', 'Grade 11 Objective Amount',
+            'Grade 10 Handbook Qty', 'Grade 10 Handbook Amount', 'Total'
+        ]
+    },
+    {
+        title: 'ငွေပေးချေမှုနှင့် ပို့ဆောင်မှုအခြေအနေ',
+        fields: [
+            'Payment Method', 'Amount Received', 'KPay Account', 'Pay Date',
+            'Delivered Date', 'Delivery', 'Royal VOC No'
+        ]
+    },
+    {
+        title: 'လူမှုကွန်ရက်အချက်အလက်',
+        fields: ['Facebook Account Name', 'Facebook Link']
+    }
 ];
 let orders = [];
 let selectedOrder = null;
@@ -16,8 +33,11 @@ function dateInputValue(value) {
     const isoDate = text.match(/^(\d{4}-\d{2}-\d{2})/);
     if (isoDate) return isoDate[1];
     const slashDate = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (!slashDate) return '';
-    const [, month, day, year] = slashDate;
+    const dottedDate = text.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+    if (!slashDate && !dottedDate) return '';
+    const [, first, second, year] = slashDate || dottedDate;
+    const month = dottedDate ? second : first;
+    const day = dottedDate ? first : second;
     const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
     return date.getUTCFullYear() === Number(year) &&
         date.getUTCMonth() === Number(month) - 1 &&
@@ -60,36 +80,53 @@ function openOrder(order) {
     voucherInput.disabled = true;
     voucherLabel.append(voucherInput);
     container.append(voucherLabel);
-    fields.forEach((field) => {
-        const label = document.createElement('label');
-        label.className = 'edit-field';
-        label.append(document.createTextNode(field));
-        const input = document.createElement(field === 'Payment Method' ? 'select' : 'input');
-        input.name = field;
-        if (field === 'Pay Date' || field === 'Delivered Date') {
-            input.type = 'date';
-            input.value = dateInputValue(orderField(order, field));
-        } else if (field === 'Payment Method') {
-            ['COD', 'KBZ Pay'].forEach((method) => {
-                const option = document.createElement('option');
-                option.value = method;
-                option.textContent = method === 'COD' ? 'COD (ပစ္စည်းရောက်မှ ငွေချေ)' : method;
-                input.append(option);
-            });
-            const currentMethod = orderField(order, field);
-            if (currentMethod && !['COD', 'KBZ Pay'].includes(currentMethod)) {
-                const existing = document.createElement('option');
-                existing.value = currentMethod;
-                existing.textContent = `${currentMethod} (လက်ရှိ)`;
-                input.append(existing);
+    fieldGroups.forEach((group) => {
+        const section = document.createElement('section');
+        section.className = 'edit-group';
+        const heading = document.createElement('h3');
+        heading.textContent = group.title;
+        const grid = document.createElement('div');
+        grid.className = 'edit-grid';
+        group.fields.forEach((field) => {
+            const label = document.createElement('label');
+            label.className = 'edit-field';
+            label.append(document.createTextNode(field));
+            const input = document.createElement(field === 'Payment Method' ? 'select' : 'input');
+            input.name = field;
+            if (field === 'Pay Date' || field === 'Delivered Date') {
+                input.type = 'date';
+                input.value = dateInputValue(orderField(order, field));
+            } else if (field.endsWith('Qty') || field === 'Total' ||
+                field === 'Amount Received' || field.endsWith('Amount')) {
+                input.type = 'number';
+                input.min = '0';
+                input.step = '1';
+                input.inputMode = 'numeric';
+                input.value = orderField(order, field);
+            } else if (field === 'Payment Method') {
+                ['COD', 'KBZ Pay'].forEach((method) => {
+                    const option = document.createElement('option');
+                    option.value = method;
+                    option.textContent = method === 'COD' ? 'COD (ပစ္စည်းရောက်မှ ငွေချေ)' : method;
+                    input.append(option);
+                });
+                const currentMethod = orderField(order, field);
+                if (currentMethod && !['COD', 'KBZ Pay'].includes(currentMethod)) {
+                    const existing = document.createElement('option');
+                    existing.value = currentMethod;
+                    existing.textContent = `${currentMethod} (လက်ရှိ)`;
+                    input.append(existing);
+                }
+                input.value = currentMethod || 'KBZ Pay';
+            } else {
+                input.value = orderField(order, field);
+                input.autocomplete = 'off';
             }
-            input.value = currentMethod || 'KBZ Pay';
-        } else {
-            input.value = orderField(order, field);
-            input.autocomplete = 'off';
-        }
-        label.append(input);
-        container.append(label);
+            label.append(input);
+            grid.append(label);
+        });
+        section.append(heading, grid);
+        container.append(section);
     });
     document.getElementById('edit-status').textContent = '';
     document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth' });

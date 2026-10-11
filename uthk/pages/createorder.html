@@ -11,22 +11,60 @@
     <form id="create-order-form">
         <section class="panel"><h2>မှာယူသူအချက်အလက်</h2><div class="form-grid">
             <label class="field">အမည်<input name="name" autocomplete="name" required></label>
-            <label class="field">ဖုန်းနံပါတ်<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required></label>
-            <label class="field full">လိပ်စာ<textarea name="address" rows="3" required></textarea></label>
-            <label class="field">ငွေပေးချေမှုအမျိုးအစား
-                <select name="paymentMethod" required>
-                    <option value="COD">COD (ပစ္စည်းရောက်မှ ငွေချေ)</option>
-                    <option value="KBZ Pay" selected>KBZ Pay</option>
-                </select>
-            </label>
+            <label class="field">ဖုန်းနံပါတ် ၁<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required></label>
+            <label class="field">ဖုန်းနံပါတ် ၂ (ရှိပါက)<input name="phone2" type="tel" inputmode="tel" autocomplete="tel-national"></label>
         </div></section>
-        <section class="panel"><h2>စာအုပ်နှင့် အုပ်ရေ</h2><div id="book-quantities" class="form-grid"></div><div class="receipt-total"><span>စုစုပေါင်းကျသင့်ငွေ</span><strong id="order-total">0 ကျပ်</strong></div></section>
+        <section class="panel">
+            <h2>ပို့ဆောင်မည့်လိပ်စာ</h2>
+            <div class="form-grid">
+                <label class="field">မြို့အမည်
+                    <input id="delivery-city" name="deliveryCity" list="delivery-city-options" autocomplete="off" placeholder="English သို့မဟုတ် မြန်မာအမည်ဖြင့် ရှာပါ" required disabled>
+                    <datalist id="delivery-city-options"></datalist>
+                </label>
+                <label class="field">ရပ်ကွက်၊ လမ်း၊ အိမ်အမှတ်
+                    <input name="address" autocomplete="street-address" required>
+                </label>
+            </div>
+            <p id="city-status" class="search-hint" role="status">မြို့စာရင်းကို ရယူနေသည်…</p>
+        </section>
+        <section class="panel">
+            <h2>စာအုပ်နှင့် အုပ်ရေ</h2>
+            <p class="search-hint">လျှော့ဈေးကို စာအုပ်အမျိုးအစားတစ်မျိုးချင်း၏ အုပ်ရေအလိုက် တွက်ပါမည်။</p>
+            <div id="book-quantities" class="form-grid"></div>
+            <div class="receipt-total"><span>စာအုပ်ဖိုးစုစုပေါင်း</span><strong id="order-total">0 ကျပ်</strong></div>
+            <p id="order-weight" class="search-hint">စုစုပေါင်းအလေးချိန်: 0 kg</p>
+        </section>
+        <section class="panel">
+            <h2>ပို့ဆောင်ရေး</h2>
+            <div class="delivery-choice-list">
+                <label class="payment-option"><input type="radio" name="deliveryService" value="Royal" required> Royal Delivery Service</label>
+                <label class="payment-option"><input type="radio" name="deliveryService" value="Car" required> ကားတင်ရန်</label>
+            </div>
+            <label id="car-details-field" class="field delivery-extra" hidden>ကားဂိတ်နှင့် ကားအမည်
+                <input name="carDetails" autocomplete="off">
+            </label>
+            <p id="delivery-note" class="search-hint" hidden></p>
+            <div class="delivery-summary" aria-live="polite">
+                <p>ပို့ခ <strong id="delivery-fee">မြို့နှင့်ဝန်ဆောင်မှု ရွေးပါ</strong></p>
+                <p class="payable-total">စာအုပ်ဖိုးနှင့် ပို့ခ <strong id="payable-total">တွက်ချက်ရန်လိုအပ်သည်</strong></p>
+            </div>
+        </section>
+        <section class="panel">
+            <h2>ငွေပေးချေမှု</h2>
+            <div class="delivery-choice-list">
+                <label class="payment-option"><input type="radio" name="paymentMethod" value="COD" required> အိမ်ရောက်ငွေချေ (COD)</label>
+                <label class="payment-option"><input type="radio" name="paymentMethod" value="KBZ Pay" required checked> KBZ Pay</label>
+            </div>
+            <p class="search-hint">KBZ Pay — 09-258 554 839, U Thiha Kyaw</p>
+            <p id="cod-hint" class="search-hint" hidden>စုစုပေါင်း ၁၅၀,၀၀၀ ကျပ်နှင့်အထက် သို့မဟုတ် ကားတင်ရန်ဆိုပါက KBZ Pay သာ ရွေးနိုင်ပါသည်။</p>
+        </section>
         <section class="panel no-print"><div class="button-row"><button class="primary-button" id="submit-order" type="submit"><i class="fa-solid fa-circle-check"></i> အမှာစာ အတည်ပြုရန်</button></div><p id="order-status" class="status-message" role="status"></p></section>
     </form>
     <section id="created-receipt" class="receipt" hidden>
         <div class="receipt-head"><div class="receipt-heading"><p class="eyebrow">PHYSICS LEARNING HUB</p><h2>မှာယူမှု ဘောက်ချာ</h2><strong id="receipt-voucher"></strong></div><img class="receipt-logo" src="../logo.png" alt="UTHK logo"></div>
         <div id="receipt-content" class="receipt-grid"></div>
-        <div class="receipt-total"><span>စုစုပေါင်း</span><strong id="receipt-total"></strong></div>
+        <div id="receipt-totals"></div>
+        <div class="receipt-total"><span>စုစုပေါင်းကျသင့်ငွေ</span><strong id="receipt-total"></strong></div>
         <div class="button-row no-print"><button id="print-created-receipt" class="primary-button" type="button"><i class="fa-solid fa-print"></i> Print / Save PDF</button></div>
     </section>
 </main>

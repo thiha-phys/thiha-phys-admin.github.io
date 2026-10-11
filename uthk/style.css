@@ -139,9 +139,29 @@ button:disabled { cursor: wait; opacity: .65; }
 .edit-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
 .edit-field { display: grid; gap: 5px; font-size: 11px; color: var(--muted); }
 .edit-field input, .edit-field select { min-height: 41px; width: 100%; border: 1px solid #dce3ed; border-radius: 9px; padding: 8px 10px; color: var(--ink); background: #fff; }
+.edit-groups { display: grid; gap: 17px; }
+.edit-group { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
+.edit-group h3 { margin: 0 0 12px; color: #315eaa; font-size: 14px; }
 .result-list { display: grid; gap: 9px; margin-top: 13px; }
 .result-choice { padding: 13px 15px; display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: white; }
 .result-choice:hover { border-color: #9bbbf2; }
+.payment-option { min-height: 47px; display: flex; align-items: center; gap: 10px; padding: 10px 13px; border: 1px solid #dce3ed; border-radius: 10px; color: var(--ink); background: #fff; }
+.payment-option input { width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
+.payment-option[hidden], .delivery-extra[hidden], .delivery-note[hidden] { display: none !important; }
+.delivery-choice-list { display: grid; gap: 9px; }
+.delivery-extra { margin-top: 14px; }
+.order-book-field { align-content: start; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcfe; }
+.order-book-field .book-unit-price { color: #2f6ed8; font-size: 12px; }
+.order-book-field .book-amount { color: #69768b; font-size: 11px; font-weight: 600; }
+.delivery-summary { margin-top: 14px; padding: 13px; border: 1px solid #fecaca; border-radius: 12px; background: #fff7f7; }
+.delivery-summary p { display: flex; justify-content: space-between; gap: 12px; margin: 4px 0; color: #334155; font-size: 13px; }
+.delivery-summary strong { color: #c2410c; text-align: right; }
+.delivery-summary .payable-total { margin-top: 10px; padding-top: 10px; border-top: 1px solid #fecaca; font-size: 15px; font-weight: 800; }
+.receipt-section-heading { margin: 16px 0 4px; padding-bottom: 7px; border-bottom: 1px solid var(--line); color: #315eaa; font-size: 13px; font-weight: 800; }
+.receipt-delivery-line strong { color: #c2410c; }
+.receipt-grand-line { border-top: 2px solid #5146d8; font-size: 14px; }
+.receipt-grand-line strong { color: #3730a3; }
+.receipt-cash-line strong { color: #237a56; }
 .receipt { max-width: 740px; margin: 18px auto; border: 1px solid #dce3ed; border-radius: 16px; padding: 30px; background: #fff; box-shadow: var(--shadow); }
 .receipt-head { display: grid; grid-template-columns: minmax(0, 1fr) 78px; align-items: center; gap: 12px; padding-bottom: 18px; border-bottom: 1px dashed #ccd5e2; }
 .receipt-heading { text-align: center; }
@@ -219,5 +239,6 @@ button:disabled { cursor: wait; opacity: .65; }
     body * { visibility: hidden !important; }
     #receipt, #receipt *, #created-receipt, #created-receipt * { visibility: visible !important; }
     #receipt, #created-receipt { position: absolute; inset: 0; max-width: none; margin: 0; border: 0; box-shadow: none; }
+    .receipt { border-radius: 0; }
     .no-print { display: none !important; }
 }

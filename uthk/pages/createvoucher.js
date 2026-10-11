@@ -4,7 +4,8 @@ function renderVoucherMatches(query) {
     const results = document.getElementById('voucher-results');
     results.replaceChildren();
     const matches = orders.filter((order) => orderMatches(order, query))
-        .sort((a, b) => String(b['Order Date'] || '').localeCompare(String(a['Order Date'] || '')));
+        .sort((a, b) => String(b['Ordered Date'] || b['Order Date'] || '')
+            .localeCompare(String(a['Ordered Date'] || a['Order Date'] || '')));
     if (!matches.length) {
         results.innerHTML = '<div class="empty-state">ကိုက်ညီသော အမှာစာ မတွေ့ပါ။</div>';
         return 0;
@@ -29,35 +30,59 @@ function addReceiptLine(container, label, value) {
     text.textContent = value || '—';
     line.append(key, text);
     container.append(line);
+    return line;
 }
 
 function displayVoucher(order) {
     document.getElementById('receipt-voucher').textContent = `ဘောက်ချာအမှတ် ${order['Voucher No']}`;
     const info = document.getElementById('receipt-info');
     info.replaceChildren();
+    const deliveryService = order['Delivery Service'] || order.Delivery;
+    const orderedDate = order['Ordered Date'] || order['Order Date'];
+    const deliveredDate = order['Deliver Date'] || order['Delivered Date'] || order['Order Confirm'];
     [
-        ['အမည်', order.Name], ['ဖုန်း', order.Phone], ['လိပ်စာ', order.Address],
-        ['မှာယူသည့်ရက်', order['Order Date']], ['ငွေပေးချေမှု', order['Payment Method']],
-        ['ငွေလက်ခံရရှိ', formatKyats(order['Amount Received'])],
-        ['KPay Account', order['KPay Account']], ['Pay Date', order['Pay Date']],
-        ['Royal VOC No', order['Royal VOC No']], ['Delivered Date', order['Delivered Date']],
-        ['Delivery', order.Delivery], ['Facebook Account Name', order['Facebook Account Name']]
+        ['အမည်', order.Name],
+        ['ဖုန်းနံပါတ် ၁', order['Phone 1'] || order.Phone],
+        ['ဖုန်းနံပါတ် ၂', order['Phone 2']],
+        ['လိပ်စာ', order.Address],
+        ['မှာယူသည့်ရက်', orderedDate],
+        ['ပို့ဆောင်ရေး', deliveryService === 'Car' ? 'ကားတင်ရန်' : deliveryService],
+        ['ပို့ဆောင်မည့်ရက်', deliveredDate],
+        ['ကားဂိတ် / ကားအမည်', order['Delivery Notes']],
+        ['ငွေပေးချေမှု', order['Payment Method']]
     ].forEach(([label, value]) => addReceiptLine(info, label, String(value || '')));
     const itemList = document.getElementById('receipt-items');
     itemList.replaceChildren();
     const itemFields = [
         ['Special Qty', 'Special Amount'], ['Practice Qty', 'Practice Amount'],
-        ['Old Questions Qty', 'Old Questions Amount'], ['Solution Qty', 'Solution Amount'],
-        ['Grade 11 Handbook Qty', 'Grade 11 Handbook Amount'],
-        ['Grade 11 Objective Qty', 'Grade 11 Objective Amount'],
-        ['Grade 10 Handbook Qty', 'Grade 10 Handbook Amount']
+        ['OQ Qty', 'OQ Amount'], ['Solution Qty', 'Solution Amount'],
+        ['G11 Handbook Qty', 'G11 Handbook Amount'],
+        ['G11 Objective Qty', 'G11 Objective Amount'],
+        ['G10 Handbook Qty', 'G10 Handbook Amount']
     ];
     const itemNames = AdminBooks.map((book) => book.name);
     itemFields.forEach(([quantityField, amountField], index) => {
         const quantity = Number(order[quantityField] || 0);
         if (quantity > 0) addReceiptLine(itemList, `${itemNames[index]} × ${quantity}`, formatKyats(order[amountField]));
     });
-    document.getElementById('receipt-total').textContent = formatKyats(order.Total);
+    const totals = document.getElementById('receipt-totals');
+    totals.replaceChildren();
+    const deliveryFee = Number(order['Delivery Fees'] || 0);
+    const totalKg = Number(order['Total KG'] || 0);
+    if (Number.isFinite(totalKg) && totalKg > 0) {
+        addReceiptLine(totals, 'စုစုပေါင်းအလေးချိန်', `${totalKg} kg`);
+    }
+    if (deliveryService) {
+        const feeLine = addReceiptLine(totals, 'ပို့ခ', deliveryService === 'Car'
+            ? 'ကားဂိတ်တွင် သီးခြားပေးချေရန်'
+            : formatKyats(deliveryFee));
+        feeLine.classList.add('receipt-delivery-line');
+    }
+    const bookTotal = Number(order.Total || 0);
+    addReceiptLine(totals, 'စာအုပ်ဖိုးစုစုပေါင်း', formatKyats(bookTotal));
+    addReceiptLine(totals, 'ငွေကောက် COD', formatKyats(order['Cash Collection']))
+        .classList.add('receipt-cash-line');
+    document.getElementById('receipt-total').textContent = formatKyats(bookTotal + deliveryFee);
     document.getElementById('receipt').hidden = false;
     document.getElementById('receipt').scrollIntoView({ behavior: 'smooth' });
 }
