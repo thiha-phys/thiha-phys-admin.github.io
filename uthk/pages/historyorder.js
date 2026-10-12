@@ -56,6 +56,9 @@ function renderOrderDetails(order) {
 
     const extraDetails = [
         ['ငွေပေးချေမှု', order['Payment Method']],
+        ['ငွေကောက်', order['Cash Collection'] == null || order['Cash Collection'] === ''
+            ? ''
+            : formatKyats(order['Cash Collection'])],
         ['KPay Account', order['KPay Account']],
         ['Pay Date', order['Pay Date']],
         ['Royal VOC No', order['Royal VOC No']],
