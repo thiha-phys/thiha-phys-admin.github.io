@@ -150,6 +150,7 @@
             'Deliver Date': '',
             'Delivery Service': resultOrder.deliveryService || '',
             'Delivery Fees': String(resultOrder.deliveryFees || 0),
+            'Rounding Adjustment': String(resultOrder.roundingAdjustment || 0),
             'Total KG': String(resultOrder.totalKg || 0),
             'Cash Collection': String(resultOrder.cashCollection || 0),
             'Delivery Notes': resultOrder.deliveryNotes || ''
@@ -249,9 +250,9 @@
         { id: 'practice', name: 'Practice Book', price: 13000, prices: [13000, 12000, 11500, 11000, 10500], weight: 0.44925 },
         { id: 'old-questions', name: 'မေးခွန်းဟောင်းစာအုပ်', price: 11000, prices: [11000, 10000, 9500, 9000, 8800], weight: 0.4668 },
         { id: 'solution', name: 'တွက်စာသီးသန့်စာအုပ်', price: 5000, prices: [5000, 4500, 4000, 4000, 3800], weight: 0.10437 },
-        { id: 'g11-handbook', name: 'Grade 11 စာသင်ခန်းသုံး စာအုပ်', price: 10000, prices: [10000, 9000, 8500, 8000, 8000], weight: 0.3 },
+        { id: 'g11-handbook', name: 'Grade 11 handbook', price: 10000, prices: [10000, 9000, 8500, 8000, 8000], weight: 0.3 },
         { id: 'g11-objective', name: 'Grade 11 တစ်မှတ်တန် သီးသန့်စာအုပ်', price: 8000, prices: [8000, 7000, 6500, 6500, 6500], weight: 0.25 },
-        { id: 'g10-handbook', name: 'Grade 10 စာသင်ခန်းသုံး စာအုပ်', price: 10000, prices: [10000, 9000, 8500, 8000, 8000], weight: 0.2 }
+        { id: 'g10-handbook', name: 'Grade 10 handbook', price: 10000, prices: [10000, 9000, 8500, 8000, 8000], weight: 0.2 }
     ];
     window.formatKyats = (value) => `${Number(value || 0).toLocaleString('my-MM')} ကျပ်`;
     window.escapeText = (value) => String(value == null ? '' : value)

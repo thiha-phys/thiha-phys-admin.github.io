@@ -25,6 +25,15 @@ function bookPricing(book, quantity) {
     return book.prices[tier];
 }
 
+function roundDeliveryWeight(weight) {
+    if (weight <= 0) return 0;
+    const weightUnits = Math.round(weight * 100000);
+    const wholeKg = Math.floor(weightUnits / 100000);
+    const fractionalUnits = weightUnits - wholeKg * 100000;
+    if (fractionalUnits < 60000) return wholeKg + 0.5;
+    return wholeKg + 1;
+}
+
 function getRoyalDeliveryFee(weight, city) {
     const packages = Math.max(1, Math.ceil(weight / 5 - 0.000000001));
     const fullPackageFee = Number(city.upTo2Kg) + 3 * Number(city.nextKg);
@@ -39,9 +48,14 @@ function getPricing() {
     const amounts = quantities.map((quantity, index) =>
         quantity * bookPricing(AdminBooks[index], quantity));
     const total = amounts.reduce((sum, amount) => sum + amount, 0);
-    const weight = Math.round(quantities.reduce((sum, quantity, index) =>
+    const actualWeight = Math.round(quantities.reduce((sum, quantity, index) =>
         sum + quantity * AdminBooks[index].weight, 0) * 100000) / 100000;
+    const weight = roundDeliveryWeight(actualWeight);
     return { quantities, amounts, total, weight };
+}
+
+function getRoundingAdjustment(total) {
+    return total % 100 === 50 ? 50 : 0;
 }
 
 function updatePaymentOptions(totalWithDelivery) {
@@ -82,7 +96,6 @@ function updateSummary() {
         deliveryNote.textContent = 'ကားတင်ပြီးပါက ကားတင်ဘောက်ချာ ပြန်ပို့ပေးပါမည်။';
     } else if (service === 'Royal' && city) {
         deliveryFee = getRoyalDeliveryFee(pricing.weight, city);
-        feeElement.textContent = formatKyats(deliveryFee);
         feeIsKnown = true;
         deliveryNote.textContent = 'Royal delivery service အပ်ပြီးပါက ဘောက်ချာ ပို့ပေးပါမည်။';
     } else {
@@ -90,10 +103,16 @@ function updateSummary() {
         deliveryNote.textContent = '';
     }
     deliveryNote.hidden = !deliveryNote.textContent;
+    const roundingAdjustment = feeIsKnown
+        ? getRoundingAdjustment(pricing.total + deliveryFee)
+        : 0;
+    deliveryFee += roundingAdjustment;
+    if (service === 'Royal' && city) feeElement.textContent = formatKyats(deliveryFee);
+    const totalPayable = pricing.total + deliveryFee;
     payableElement.textContent = feeIsKnown
-        ? formatKyats(pricing.total + deliveryFee)
+        ? formatKyats(totalPayable)
         : 'တွက်ချက်ရန်လိုအပ်သည်';
-    updatePaymentOptions(pricing.total + deliveryFee);
+    updatePaymentOptions(feeIsKnown ? totalPayable : pricing.total);
 }
 
 AdminBooks.forEach((book) => {
@@ -155,8 +174,7 @@ function showReceipt(order) {
         ? 'ကားဂိတ်တွင် သီးခြားပေးချေရန်'
         : formatKyats(order.deliveryFees)));
     totals.append(receiptRow('ငွေကောက်', formatKyats(order.cashCollection)));
-    document.getElementById('receipt-total').textContent =
-        formatKyats(order.total + order.deliveryFees);
+    document.getElementById('receipt-total').textContent = formatKyats(order.payableTotal);
     document.getElementById('created-receipt').hidden = false;
     document.getElementById('created-receipt').scrollIntoView({ behavior: 'smooth' });
 }
@@ -219,13 +237,15 @@ form.addEventListener('submit', async (event) => {
     }
     const service = selectedDeliveryService();
     const deliveryFee = service === 'Royal' ? getRoyalDeliveryFee(pricing.weight, city) : 0;
+    const roundingAdjustment = getRoundingAdjustment(pricing.total + deliveryFee);
+    const totalPayable = pricing.total + deliveryFee + roundingAdjustment;
     const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value || '';
     if (service === 'Car' && paymentMethod !== 'KBZ Pay') {
         status.textContent = 'ကားတင်ရန်အတွက် KBZ Pay တစ်မျိုးတည်းသာ ရွေးချယ်နိုင်ပါသည်။';
         status.classList.add('error');
         return;
     }
-    if (paymentMethod === 'COD' && pricing.total + deliveryFee >= codMaxTotal) {
+    if (paymentMethod === 'COD' && totalPayable >= codMaxTotal) {
         status.textContent = 'စုစုပေါင်း ၁၅၀,၀၀၀ ကျပ်နှင့်အထက်ဖြစ်သဖြင့် COD ရွေး၍မရပါ။';
         status.classList.add('error');
         return;
