@@ -425,6 +425,16 @@ function calculateRoyalDeliveryFee_(totalWeight, city) {
     city[2] + lastPackageExtraKg * city[3] + ROYAL_SERVICE_FEE;
 }
 
+function roundDeliveryWeight_(weight) {
+  if (weight <= 0) return 0;
+  const weightUnits = Math.round(weight * 100000);
+  const wholeKg = Math.floor(weightUnits / 100000);
+  const fractionalUnits = weightUnits - wholeKg * 100000;
+  if (fractionalUnits <= 20000) return wholeKg;
+  if (fractionalUnits < 60000) return wholeKg + 0.5;
+  return wholeKg + 1;
+}
+
 function bookUnitPrice_(book, quantity) {
   const priceTier = ORDER_PRICE_THRESHOLDS.reduce(function (tier, threshold, index) {
     return quantity >= threshold ? index : tier;
@@ -516,6 +526,7 @@ function createBookOrder_(order) {
     throw new Error('The order total or weight is too large.');
   }
   totalWeight = Math.round(totalWeight * 100000) / 100000;
+  totalWeight = roundDeliveryWeight_(totalWeight);
 
   const deliveryService = normalizeDeliveryService_(order.deliveryService || order.delivery);
   const cityValue = order.deliveryCity || order.city || order.cityName || '';
