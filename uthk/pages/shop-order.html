@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ဆိုင်အမှာစာ | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top"><a id="shop-order-back" class="back-button" href="shops.html" aria-label="နောက်သို့ပြန်သွားရန်"><i class="fa-solid fa-arrow-left"></i></a><div><h1 id="shop-order-title" class="page-title">အမှာစာအသစ်</h1><p class="page-subtitle">ဆိုင်အမှာစာအချက်အလက်များကို ဖြည့်သွင်းပါ။ သိမ်းဆည်းပြီးပါက ဘောက်ချာပြသပါမည်။</p></div></header>
+    <form id="shop-order-form">
+        <section class="panel"><h2>အမှာစာရက်စွဲ</h2><div id="order-dates" class="shop-fields"></div></section>
+        <section class="panel"><h2>စာအုပ်အရေအတွက်နှင့် ဈေးနှုန်း</h2><p class="search-hint">ဆိုင်အလိုက် မူလတစ်အုပ်တန်ဖိုးမှ ၂၀% လျှော့တွက်ပါမည်။ ကိုထွန်းစာပေနှင့် ရွှေမိုးစာပေကို ၂၅% လျှော့တွက်ပြီး အုပ်ရေမရွေး တစ်အုပ်ဈေးတူပါသည်။</p><div id="book-quantities" class="shop-fields"></div><div class="receipt-total"><span>စုစုပေါင်း</span><strong id="shop-order-total">0 ကျပ်</strong></div></section>
+        <section class="panel"><h2>ငွေပေးချေမှုနှင့် ပို့ဆောင်မှု</h2><p class="search-hint">Word ဖိုင်တွင် ပါရှိသော ဆိုင်လိပ်စာနှင့် ဖုန်းကို ကြိုဖြည့်ထားပါသည်။ မပြည့်စုံသေးသော အချက်အလက်ကို ဤနေရာတွင် ဖြည့်စွက်နိုင်ပါသည်။</p><div id="order-details" class="shop-fields"></div></section>
+        <section class="panel no-print"><div class="button-row"><button class="primary-button" id="save-shop-order" type="submit"><i class="fa-solid fa-circle-check"></i> သိမ်းဆည်းရန်</button></div><p id="shop-order-status" class="status-message" role="status"></p></section>
+    </form>
+    <section id="shop-receipt" class="receipt" hidden>
+        <div class="receipt-head"><div class="receipt-heading"><p class="eyebrow">PHYSICS LEARNING HUB</p><h2>ဆိုင်အမှာစာ ဘောက်ချာ</h2><strong id="receipt-voucher"></strong><p id="receipt-shop"></p></div><img class="receipt-logo" src="../logo.png" alt="UTHK logo"></div>
+        <div id="receipt-content" class="receipt-grid"></div>
+        <div class="receipt-total"><span>စုစုပေါင်း</span><strong id="receipt-total"></strong></div>
+        <div class="button-row no-print"><button id="print-shop-receipt" class="primary-button" type="button"><i class="fa-solid fa-print"></i> Print / Save PDF</button></div>
+    </section>
+</main>
+<script src="admin-api.js"></script><script src="shop-order.js"></script>
+</body></html>

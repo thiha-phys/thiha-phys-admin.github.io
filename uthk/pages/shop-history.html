@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>အမှာစာမှတ်တမ်း | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top"><a id="shop-history-back" class="back-button" href="shops.html" aria-label="နောက်သို့ပြန်သွားရန်"><i class="fa-solid fa-arrow-left"></i></a><div><h1 id="shop-history-title" class="page-title">အမှာစာမှတ်တမ်း</h1><p class="page-subtitle">အမှာစာအသေးစိတ်ကြည့်ပြီး အချက်အလက်များ ပြင်ဆင်နိုင်ပါသည်။</p></div></header>
+    <section class="panel">
+        <label class="field">Voucher No ဖြင့်ရှာရန်<input id="shop-search" class="search-input" type="search" placeholder="ဘောက်ချာနံပါတ် ရိုက်ထည့်ပါ"></label>
+        <div id="shop-order-summary" class="shop-order-summary" aria-label="ဆိုင်အမှာစာ ငွေစာရင်းအကျဉ်းချုပ်">
+            <article class="shop-summary-card"><span>မှာယူခဲ့သမျှ စုစုပေါင်း</span><strong id="shop-total-ordered">0 ကျပ်</strong></article>
+            <article class="shop-summary-card"><span>ပေးချေပြီးသမျှ စုစုပေါင်း</span><strong id="shop-total-received">0 ကျပ်</strong></article>
+            <article class="shop-summary-card"><span>ကျန်ငွေ</span><strong id="shop-total-outstanding">0 ကျပ်</strong></article>
+        </div>
+        <div class="history-refresh-row"><span id="shop-history-status" class="muted small">အမှာစာများရယူနေသည်…</span><button id="refresh-shop-history" class="icon-button" type="button" aria-label="အမှာစာများအသစ်ရယူရန်"><i class="fa-solid fa-rotate"></i></button></div>
+        <p id="shop-history-message" class="status-message" role="status"></p>
+        <div id="shop-order-list" class="order-list"></div>
+    </section>
+</main>
+<script src="admin-api.js"></script><script src="shop-history.js"></script>
+</body></html>

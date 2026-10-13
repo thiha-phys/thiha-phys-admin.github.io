@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uthk-admin-shell-v4';
+const CACHE_NAME = 'uthk-admin-shell-v6';
 const APP_FILES = [
     './index.html',
     './style.css',
@@ -17,7 +17,15 @@ const APP_FILES = [
     './pages/createvoucher.html',
     './pages/createvoucher.js',
     './pages/checkstock.html',
-    './pages/checkstock.js'
+    './pages/checkstock.js',
+    './pages/shops.html',
+    './pages/shops.js',
+    './pages/shop.html',
+    './pages/shop.js',
+    './pages/shop-order.html',
+    './pages/shop-order.js',
+    './pages/shop-history.html',
+    './pages/shop-history.js'
 ];
 
 self.addEventListener('install', (event) => {
