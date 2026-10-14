@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "UTHK Royal Shipment Sync",
+  "version": "1.0.0",
+  "description": "Automatically syncs Royal shipment waybills and status to the UTHK Google Sheet.",
+  "permissions": [
+    "alarms",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://member.royalx.biz/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://member.royalx.biz/shipment*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "UTHK Royal Sync",
+    "default_popup": "popup.html"
+  }
+}

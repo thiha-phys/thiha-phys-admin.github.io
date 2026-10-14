@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="my">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Royal ဘောက်ချာ | UTHK Admin</title>
+    <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body><main class="page-shell">
+    <header class="page-top"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">Royal ဘောက်ချာနှင့် ပို့ဆောင်မှုအခြေအနေ</h1><p class="page-subtitle">ဖုန်းနံပါတ်ကိုက်ညီသည့် အမှာစာများကို အလိုအလျောက်စစ်ဆေးပါ။</p></div></header>
+    <section class="panel">
+        <h2>အလိုအလျောက် Royal sync</h2>
+        <p class="search-hint">Royal မှ official API မပေးထားသည့်အတွက် Chrome extension က သင်ကိုယ်တိုင်ဝင်ထားသော Royal browser session ကို အသုံးပြုပြီး <strong>Shipment</strong> စာရင်းကို တစ်မိနစ်တစ်ကြိမ် စစ်ဆေးပါမည်။ Waybill အသစ် သို့မဟုတ် အခြေအနေ/ငွေပမာဏ ပြောင်းလဲမှသာ Google Sheet ကို update လုပ်ပါမည်။ Excel/CSV download မလိုပါ။ Browser နဲ့ Royal shipment tab ဖွင့်ထားရန်လိုပြီး Royal password ကို extension က မဖတ်၊ မသိမ်းပါ။</p>
+        <ol class="royal-setup-steps">
+            <li>Google Apps Script ထဲသို့ <code>uthk/Code.gs</code> အသစ်ကိုတင်ပြီး လက်ရှိ Web App deployment ကို <strong>New version</strong> ဖြင့် update လုပ်ပါ။</li>
+            <li>Repository ရှိ <code>uthk/royal-extension</code> folder ကို Chrome ၏ <code>chrome://extensions</code> စာမျက်နှာမှ <strong>Developer mode → Load unpacked</strong> ဖြင့် တစ်ကြိမ်ထည့်ပါ။</li>
+            <li>Royal member account ထဲဝင်ပြီး <strong>Your Shipments</strong> စာမျက်နှာကို ဖွင့်ထားပါ။</li>
+            <li>Shipment စာရင်းအပေါ်မှာ UTHK sync အခြေအနေကို မြင်ရပါမည်။ Pause/Resume ကို extension icon မှ ပြောင်းနိုင်ပါသည်။</li>
+        </ol>
+        <p class="search-hint">တူညီသောဖုန်းနံပါတ်အတွက် မချိတ်ရသေးသော Royal delivery order များကို ရက်စွဲအလိုက် ချိတ်ပါမည်။ ရှိပြီးသား Royal Voucher ကို အစားထိုးမည်မဟုတ်ပါ။</p>
+        <div class="button-row">
+            <a class="primary-button" href="https://member.royalx.biz/shipment" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Royal Shipments ဖွင့်ရန်</a>
+        </div>
+    </section>
+</main>
+</body></html>

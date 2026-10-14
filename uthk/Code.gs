@@ -48,7 +48,8 @@ const ORDER_HEADERS = [
   'G10 Handbook Qty', 'G10 Handbook Amount',
   'Total', 'Received', 'KPay Account', 'Pay Date',
   'Delivery Service', 'Delivery Fees', 'Total KG', 'Cash Collection',
-  'Facebook Name', 'Facebook Link', 'Royal Voucher', 'Payment Method', 'Delivery Notes'
+  'Facebook Name', 'Facebook Link', 'Royal Voucher',
+  'Confirm Service Charge', 'Confirm Service COD', 'Payment Method', 'Delivery Notes'
 ];
 const ORDER_HEADER_ALIASES = {
   'Phone': 'Phone 1',
@@ -127,6 +128,9 @@ function doPost(e) {
     }
     if (action === 'updateOrder') {
       return updateBookOrder_(request.order);
+    }
+    if (action === 'syncRoyalShipments') {
+      return syncRoyalShipments_(request.waybills);
     }
     if (action === 'listShopOrders') {
       return jsonResponse_({
@@ -314,6 +318,280 @@ function updateBookOrder_(order) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function syncRoyalShipments_(waybills) {
+  const entries = normalizeRoyalWaybills_(waybills);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getOrdersSheet_();
+    const results = planRoyalImport_(sheet, entries);
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+    const columns = {
+      voucher: headers.indexOf('Royal Voucher'),
+      serviceCharge: headers.indexOf('Confirm Service Charge'),
+      cod: headers.indexOf('Confirm Service COD'),
+      notes: headers.indexOf('Delivery Notes')
+    };
+    const updatedRows = {};
+    results.forEach(function (result) {
+      if (!result.rowNumber) return;
+      const rowNumber = result.rowNumber;
+      let row = updatedRows[rowNumber];
+      if (!row) {
+        row = sheet.getRange(rowNumber, 1, 1, headers.length).getDisplayValues()[0];
+        updatedRows[rowNumber] = row;
+      }
+      if (result.result === 'linked') {
+        row[columns.voucher] = sheetSafeText_(result.waybillNo);
+      }
+      row[columns.serviceCharge] = sheetSafeText_(result.serviceCharge);
+      row[columns.cod] = sheetSafeText_(result.cod);
+      row[columns.notes] = sheetSafeText_(result.state);
+    });
+    Object.keys(updatedRows).forEach(function (rowNumber) {
+      const range = sheet.getRange(Number(rowNumber), 1, 1, headers.length);
+      range.setNumberFormat('@');
+      range.setValues([updatedRows[rowNumber]]);
+    });
+    return jsonResponse_({
+      ok: true,
+      results: results.map(publicRoyalImportResult_),
+      updated: Object.keys(updatedRows).length
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function normalizeRoyalWaybills_(waybills) {
+  if (!Array.isArray(waybills) || waybills.length === 0 || waybills.length > 1000) {
+    throw new Error('Import must contain between 1 and 1,000 Royal waybills.');
+  }
+  const seen = Object.create(null);
+  return waybills.map(function (entry, index) {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error('A Royal waybill row is invalid.');
+    }
+    const waybillNo = requiredText_(entry.waybillNo, 'Waybill No');
+    const duplicateKey = waybillNo.toLocaleUpperCase();
+    if (seen[duplicateKey]) {
+      throw new Error('The Royal export contains a duplicate waybill number: ' + waybillNo);
+    }
+    seen[duplicateKey] = true;
+    if (String(entry.serviceCharge == null ? '' : entry.serviceCharge).trim() === '' ||
+        String(entry.cod == null ? '' : entry.cod).trim() === '') {
+      throw new Error('Service Charges and COD are required in every Royal row.');
+    }
+    const serviceCharge = Number(entry.serviceCharge);
+    const cod = Number(entry.cod);
+    if (!Number.isSafeInteger(serviceCharge) || serviceCharge < 0 ||
+        !Number.isSafeInteger(cod) || cod < 0) {
+      throw new Error('Service Charges and COD must be non-negative whole numbers.');
+    }
+    const receiver = requiredText_(entry.receiver, 'Receiver');
+    const state = requiredText_(entry.state, 'State');
+    const waybillDate = entry.waybillDate == null ? '' : String(entry.waybillDate);
+    if (waybillNo.length > 100 || receiver.length > 1000 ||
+        state.length > 100 || waybillDate.length > 100) {
+      throw new Error('A Royal export field is too long.');
+    }
+    return {
+      waybillNo: waybillNo,
+      receiver: receiver,
+      serviceCharge: String(serviceCharge),
+      cod: String(cod),
+      state: normalizeRoyalState_(state),
+      waybillDate: waybillDate,
+      sourceIndex: index
+    };
+  });
+}
+
+function planRoyalImport_(sheet, entries) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+  const column = {
+    royalVoucher: headers.indexOf('Royal Voucher'),
+    orderVoucher: headers.indexOf('Voucher No'),
+    phone1: headers.indexOf('Phone 1'),
+    phone2: headers.indexOf('Phone 2'),
+    orderDate: headers.indexOf('Ordered Date'),
+    deliveryService: headers.indexOf('Delivery Service')
+  };
+  if (column.royalVoucher === -1 || column.orderVoucher === -1 ||
+      column.phone1 === -1 || column.orderDate === -1 ||
+      column.deliveryService === -1) {
+    throw new Error('The Book Orders sheet is missing required Royal matching columns.');
+  }
+  const lastRow = sheet.getLastRow();
+  const rows = lastRow < 2
+    ? []
+    : sheet.getRange(2, 1, lastRow - 1, headers.length).getDisplayValues()
+      .map(function (values, index) {
+        const phones = [values[column.phone1], column.phone2 === -1 ? '' : values[column.phone2]]
+          .map(normalizeRoyalPhone_)
+          .filter(Boolean);
+        return {
+          rowNumber: index + 2,
+          royalVoucher: String(values[column.royalVoucher] || '').trim(),
+          orderVoucher: String(values[column.orderVoucher] || '').trim(),
+          phones: phones,
+          orderDate: values[column.orderDate],
+          deliveryService: String(values[column.deliveryService] || '').trim()
+        };
+      });
+
+  const existingByWaybill = Object.create(null);
+  rows.forEach(function (row) {
+    if (!row.royalVoucher) return;
+    const key = row.royalVoucher.toLocaleUpperCase();
+    if (existingByWaybill[key]) {
+      throw new Error('Duplicate Royal Voucher values were found in the sheet; import was stopped.');
+    }
+    existingByWaybill[key] = row;
+  });
+
+  const results = entries.map(function (entry) {
+    const linkedRow = existingByWaybill[entry.waybillNo.toLocaleUpperCase()];
+    if (!linkedRow) return null;
+    const receiverPhones = royalPhoneCandidates_(entry.receiver);
+    const phoneMatches = !receiverPhones.length || linkedRow.phones.some(function (phone) {
+      return receiverPhones.indexOf(phone) !== -1;
+    });
+    return {
+      waybillNo: entry.waybillNo,
+      serviceCharge: entry.serviceCharge,
+      cod: entry.cod,
+      state: entry.state,
+      phone: receiverPhones[0] || '',
+      rowNumber: phoneMatches ? linkedRow.rowNumber : 0,
+      orderVoucher: phoneMatches ? linkedRow.orderVoucher : '',
+      result: phoneMatches ? 'already-linked' : 'phone-mismatch',
+      message: phoneMatches ? 'Waybill already linked; details will be refreshed.' :
+        'Waybill matches an existing row, but the receiver phone does not match.'
+    };
+  });
+
+  const unlinkedEntries = entries.filter(function (entry, index) {
+    return results[index] === null;
+  }).slice().sort(function (a, b) {
+    const dateDifference = royalDateSortKey_(a.waybillDate) - royalDateSortKey_(b.waybillDate);
+    return dateDifference || a.sourceIndex - b.sourceIndex;
+  });
+  const availableRows = rows.filter(function (row) {
+    const service = row.deliveryService.trim().toLocaleLowerCase();
+    return !row.royalVoucher &&
+      (service === 'royal' || service === 'royal delivery' ||
+        service === 'royal delivery service');
+  }).sort(function (a, b) {
+    const dateDifference = orderDateSortKey_(a.orderDate) - orderDateSortKey_(b.orderDate);
+    return dateDifference || a.rowNumber - b.rowNumber;
+  });
+  const usedRows = Object.create(null);
+  results.forEach(function (result) {
+    if (result && result.rowNumber) usedRows[result.rowNumber] = true;
+  });
+
+  unlinkedEntries.forEach(function (entry) {
+    const receiverPhones = royalPhoneCandidates_(entry.receiver);
+    const matchingRows = availableRows.filter(function (row) {
+      return !usedRows[row.rowNumber] &&
+        row.phones.some(function (phone) {
+          return receiverPhones.indexOf(phone) !== -1;
+        });
+    });
+    const order = matchingRows[0];
+    const ambiguous = matchingRows.length > 1;
+    if (order) usedRows[order.rowNumber] = true;
+    results[entry.sourceIndex] = {
+      waybillNo: entry.waybillNo,
+      serviceCharge: entry.serviceCharge,
+      cod: entry.cod,
+      state: entry.state,
+      phone: receiverPhones[0] || '',
+      rowNumber: order ? order.rowNumber : 0,
+      orderVoucher: order ? order.orderVoucher : '',
+      result: order ? 'linked' : 'unmatched',
+      message: order
+        ? (ambiguous ? 'Matched to the oldest unlinked order for this phone.' : 'Matched by phone.')
+        : (!receiverPhones.length ? 'No Myanmar mobile number was found in Receiver.' :
+          'No unlinked Royal delivery order was found for this phone.')
+    };
+  });
+
+  return results.map(publicRoyalImportResult_);
+}
+
+function publicRoyalImportResult_(result) {
+  return {
+    waybillNo: result.waybillNo,
+    phone: result.phone,
+    orderVoucher: result.orderVoucher,
+    state: result.state,
+    result: result.result,
+    message: result.message,
+    serviceCharge: result.serviceCharge,
+    cod: result.cod,
+    rowNumber: result.rowNumber
+  };
+}
+
+function royalPhoneCandidates_(receiver) {
+  const text = String(receiver || '').replace(/[၀-၉]/g, function (digit) {
+    return String(digit.charCodeAt(0) - '၀'.charCodeAt(0));
+  });
+  const matches = text.match(/(?:\+?95[\s().-]*)?0?9(?:[\s().-]*\d){7,10}/g) || [];
+  const phones = Object.create(null);
+  matches.forEach(function (match) {
+    const phone = normalizeRoyalPhone_(match);
+    if (phone) phones[phone] = true;
+  });
+  return Object.keys(phones);
+}
+
+function normalizeRoyalPhone_(value) {
+  let digits = normalizePhone_(value);
+  if (/^959\d{7,9}$/.test(digits)) digits = '0' + digits.slice(2);
+  else if (/^9\d{8,9}$/.test(digits)) digits = '0' + digits;
+  return digits;
+}
+
+function normalizeRoyalState_(value) {
+  const state = String(value || '').trim();
+  const normalized = state.toLocaleLowerCase();
+  if (normalized === 'approved') return 'Approved';
+  if (normalized === 'complete' || normalized === 'completed') return 'Complete';
+  if (normalized === 'cancel' || normalized === 'cancelled' || normalized === 'canceled') {
+    return 'Cancel';
+  }
+  if (normalized === 'pending') return 'Pending';
+  return state;
+}
+
+function orderDateSortKey_(value) {
+  const text = String(value || '').trim();
+  let match = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
+  if (match) return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  match = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})/.exec(text);
+  if (match) return Date.UTC(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+  return Number.MAX_SAFE_INTEGER;
+}
+
+function royalDateSortKey_(value) {
+  const text = String(value || '').trim();
+  let match = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
+  if (match) return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  match = /^(\d{1,2})[-\s]([A-Za-z]{3,})[-\s](\d{4})$/.exec(text);
+  if (!match) return Number.MAX_SAFE_INTEGER;
+  const monthNames = [
+    'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+    'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+  ];
+  const month = monthNames.indexOf(match[2].slice(0, 3).toLocaleLowerCase());
+  return month < 0
+    ? Number.MAX_SAFE_INTEGER
+    : Date.UTC(Number(match[3]), month, Number(match[1]));
 }
 
 function listShopOrders_(shopId) {
@@ -658,10 +936,6 @@ function calculateRoyalDeliveryFee_(totalWeight, city) {
     city[2] + lastPackageExtraKg * city[3] + ROYAL_SERVICE_FEE;
 }
 
-function calculateRoundingAdjustment_(total) {
-  return total % 100 === 50 ? 50 : 0;
-}
-
 function roundDeliveryFeeTo500_(fee) {
   return Math.ceil(fee / 500 - 0.000000001) * 500;
 }
@@ -887,14 +1161,9 @@ function getOrdersSheet_() {
     sheet.setFrozenRows(1);
   } else {
     const lastColumn = Math.max(sheet.getLastColumn(), 1);
-    let actualHeaders = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+    const actualHeaders = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
     if (actualHeaders.indexOf('Voucher No') === -1) {
       throw new Error('The first row of the Book Orders sheet must contain a Voucher No column.');
-    }
-    const obsoleteFeeColumn = actualHeaders.indexOf('Rounding Adjustment');
-    if (obsoleteFeeColumn !== -1) {
-      sheet.deleteColumn(obsoleteFeeColumn + 1);
-      actualHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
     }
     const migratedHeaders = actualHeaders.map(function (header) {
       return ORDER_HEADER_ALIASES[header] || header;
