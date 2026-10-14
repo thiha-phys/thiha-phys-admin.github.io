@@ -47,7 +47,7 @@ const ORDER_HEADERS = [
   'G11 Objective Qty', 'G11 Objective Amount',
   'G10 Handbook Qty', 'G10 Handbook Amount',
   'Total', 'Received', 'KPay Account', 'Pay Date',
-  'Delivery Service', 'Delivery Fees', 'Rounding Adjustment', 'Total KG', 'Cash Collection',
+  'Delivery Service', 'Delivery Fees', 'Total KG', 'Cash Collection',
   'Facebook Name', 'Facebook Link', 'Royal Voucher', 'Payment Method', 'Delivery Notes'
 ];
 const ORDER_HEADER_ALIASES = {
@@ -662,6 +662,10 @@ function calculateRoundingAdjustment_(total) {
   return total % 100 === 50 ? 50 : 0;
 }
 
+function roundDeliveryFeeTo500_(fee) {
+  return Math.ceil(fee / 500 - 0.000000001) * 500;
+}
+
 function roundDeliveryWeight_(weight) {
   if (weight <= 0) return 0;
   const weightUnits = Math.round(weight * 100000);
@@ -777,8 +781,7 @@ function createBookOrder_(order) {
   const baseDeliveryFees = deliveryService === 'Royal'
     ? calculateRoyalDeliveryFee_(totalWeight, deliveryCity)
     : 0;
-  const roundingAdjustment = calculateRoundingAdjustment_(total + baseDeliveryFees);
-  const deliveryFees = baseDeliveryFees + roundingAdjustment;
+  const deliveryFees = roundDeliveryFeeTo500_(baseDeliveryFees);
   const totalPayable = total + deliveryFees;
   const cashCollection = paymentMethod === 'COD' ? totalPayable : 0;
   const address = buildOrderAddress_(order, deliveryCity);
@@ -820,7 +823,6 @@ function createBookOrder_(order) {
       'Payment Method': paymentMethod,
       'Delivery Service': deliveryService,
       'Delivery Fees': String(deliveryFees),
-      'Rounding Adjustment': '0',
       'Total KG': String(totalWeight),
       'Cash Collection': String(cashCollection),
       'Delivery Notes': deliveryNotes
@@ -853,7 +855,6 @@ function createBookOrder_(order) {
         total: total,
         deliveryService: deliveryService,
         deliveryFees: deliveryFees,
-        roundingAdjustment: 0,
         payableTotal: totalPayable,
         totalKg: totalWeight,
         cashCollection: cashCollection,
@@ -886,9 +887,14 @@ function getOrdersSheet_() {
     sheet.setFrozenRows(1);
   } else {
     const lastColumn = Math.max(sheet.getLastColumn(), 1);
-    const actualHeaders = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+    let actualHeaders = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
     if (actualHeaders.indexOf('Voucher No') === -1) {
       throw new Error('The first row of the Book Orders sheet must contain a Voucher No column.');
+    }
+    const obsoleteFeeColumn = actualHeaders.indexOf('Rounding Adjustment');
+    if (obsoleteFeeColumn !== -1) {
+      sheet.deleteColumn(obsoleteFeeColumn + 1);
+      actualHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
     }
     const migratedHeaders = actualHeaders.map(function (header) {
       return ORDER_HEADER_ALIASES[header] || header;

@@ -68,7 +68,6 @@ function displayVoucher(order) {
     const totals = document.getElementById('receipt-totals');
     totals.replaceChildren();
     const deliveryFee = Number(order['Delivery Fees'] || 0);
-    const roundingAdjustment = Number(order['Rounding Adjustment'] || 0);
     const totalKg = Number(order['Total KG'] || 0);
     if (Number.isFinite(totalKg) && totalKg > 0) {
         addReceiptLine(totals, 'စုစုပေါင်းအလေးချိန်', `${totalKg} kg`);
@@ -76,7 +75,7 @@ function displayVoucher(order) {
     if (deliveryService) {
         const feeLine = addReceiptLine(totals, 'ပို့ခ', deliveryService === 'Car'
             ? 'ကားဂိတ်တွင် သီးခြားပေးချေရန်'
-            : formatKyats(deliveryFee + roundingAdjustment));
+            : formatKyats(deliveryFee));
         feeLine.classList.add('receipt-delivery-line');
     }
     const bookTotal = Number(order.Total || 0);
@@ -84,7 +83,7 @@ function displayVoucher(order) {
     addReceiptLine(totals, 'ငွေကောက် COD', formatKyats(order['Cash Collection']))
         .classList.add('receipt-cash-line');
     document.getElementById('receipt-total').textContent =
-        formatKyats(bookTotal + deliveryFee + roundingAdjustment);
+        formatKyats(bookTotal + deliveryFee);
     document.getElementById('receipt').hidden = false;
     document.getElementById('receipt').scrollIntoView({ behavior: 'smooth' });
 }

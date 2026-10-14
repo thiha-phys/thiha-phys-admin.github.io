@@ -58,6 +58,10 @@ function getRoundingAdjustment(total) {
     return total % 100 === 50 ? 50 : 0;
 }
 
+function roundDeliveryFeeTo500(fee) {
+    return Math.ceil(fee / 500 - 0.000000001) * 500;
+}
+
 function updatePaymentOptions(totalWithDelivery) {
     const cod = form.querySelector('input[name="paymentMethod"][value="COD"]');
     const kbzPay = form.querySelector('input[name="paymentMethod"][value="KBZ Pay"]');
@@ -103,10 +107,7 @@ function updateSummary() {
         deliveryNote.textContent = '';
     }
     deliveryNote.hidden = !deliveryNote.textContent;
-    const roundingAdjustment = feeIsKnown
-        ? getRoundingAdjustment(pricing.total + deliveryFee)
-        : 0;
-    deliveryFee += roundingAdjustment;
+    deliveryFee = feeIsKnown ? roundDeliveryFeeTo500(deliveryFee) : deliveryFee;
     if (service === 'Royal' && city) feeElement.textContent = formatKyats(deliveryFee);
     const totalPayable = pricing.total + deliveryFee;
     payableElement.textContent = feeIsKnown
@@ -236,9 +237,9 @@ form.addEventListener('submit', async (event) => {
         return;
     }
     const service = selectedDeliveryService();
-    const deliveryFee = service === 'Royal' ? getRoyalDeliveryFee(pricing.weight, city) : 0;
-    const roundingAdjustment = getRoundingAdjustment(pricing.total + deliveryFee);
-    const totalPayable = pricing.total + deliveryFee + roundingAdjustment;
+    const baseDeliveryFee = service === 'Royal' ? getRoyalDeliveryFee(pricing.weight, city) : 0;
+    const deliveryFee = roundDeliveryFeeTo500(baseDeliveryFee);
+    const totalPayable = pricing.total + deliveryFee;
     const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value || '';
     if (service === 'Car' && paymentMethod !== 'KBZ Pay') {
         status.textContent = 'ကားတင်ရန်အတွက် KBZ Pay တစ်မျိုးတည်းသာ ရွေးချယ်နိုင်ပါသည်။';

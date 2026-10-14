@@ -397,7 +397,6 @@
             'Deliver Date': '',
             'Delivery Service': resultOrder.deliveryService || '',
             'Delivery Fees': String(resultOrder.deliveryFees || 0),
-            'Rounding Adjustment': String(resultOrder.roundingAdjustment || 0),
             'Total KG': String(resultOrder.totalKg || 0),
             'Cash Collection': String(resultOrder.cashCollection || 0),
             'Delivery Notes': resultOrder.deliveryNotes || ''
