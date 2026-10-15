@@ -156,7 +156,7 @@ function showReceipt(order) {
     document.getElementById('receipt-voucher').textContent = `ဘောက်ချာအမှတ် ${order.voucherNo}`;
     const content = document.getElementById('receipt-content');
     content.replaceChildren();
-    [
+    const receiptRows = [
         ['အမည်', order.name],
         ['ဖုန်းနံပါတ် ၁', order.phone],
         ['ဖုန်းနံပါတ် ၂', order.phone2],
@@ -164,7 +164,11 @@ function showReceipt(order) {
         ['မှာယူသည့်ရက်', order.orderDate],
         ['ပို့ဆောင်ရေး', order.deliveryService === 'Car' ? 'ကားတင်ရန်' : 'Royal Delivery Service'],
         ['ငွေပေးချေမှု', order.paymentMethod]
-    ].forEach(([label, value]) => content.append(receiptRow(label, value)));
+    ];
+    if (order.deliveryService === 'Car') {
+        receiptRows.push(['ကားဂိတ် / ကားအမည်', order.carInfo || order.deliveryNotes]);
+    }
+    receiptRows.forEach(([label, value]) => content.append(receiptRow(label, value)));
     order.items.filter((item) => item.quantity > 0).forEach((item) =>
         content.append(receiptRow(`${item.name} × ${item.quantity}`, formatKyats(item.amount))));
     const totals = document.getElementById('receipt-totals');
@@ -280,7 +284,7 @@ form.addEventListener('submit', async (event) => {
             ? 'အမှာစာကို Google Sheet တွင် သိမ်းပြီးပါပြီ။ ဖုန်းတွင်း cache မပြောင်းနိုင်ပါ။'
             : result.cacheNeedsRefresh
                 ? 'အမှာစာကို Google Sheet တွင် သိမ်းပြီးပါပြီ။ Data အပြည့်အစုံအတွက် refresh လုပ်ပါ။'
-                : 'အမှာစာသိမ်းပြီးပါပြီ။ ဘောက်ချာကို Print / Save PDF လုပ်နိုင်ပါသည်။';
+                : 'အမှာစာသိမ်းပြီးပါပြီ။ ဘောက်ချာကို ပုံအဖြစ်သိမ်း၊ မျှဝေ သို့မဟုတ် Print / Save PDF လုပ်နိုင်ပါသည်။';
         status.classList.add(result.localCacheError || result.cacheNeedsRefresh ? 'error' : 'success');
         button.textContent = 'မှာယူပြီးပါပြီ';
     } catch (error) {
@@ -293,4 +297,10 @@ form.addEventListener('submit', async (event) => {
 });
 
 document.getElementById('print-created-receipt').addEventListener('click', () => window.print());
+attachReceiptActions({
+    receiptId: 'created-receipt',
+    saveButtonId: 'save-created-receipt-image',
+    shareButtonId: 'share-created-receipt',
+    statusId: 'created-receipt-action-status'
+});
 updateSummary();

@@ -9,9 +9,13 @@ function renderShopOrderDetails(order) {
         `<div class="shop-order-detail"><span>${escapeText(key)}</span><strong>${escapeText(value || '—')}</strong></div>`
     ).join('');
     const editHref = `shop-order.html?shop=${encodeURIComponent(historyShop.id)}&voucher=${encodeURIComponent(order['Voucher No'])}`;
+    const receiptHref = `${editHref}&receipt=1`;
     return `<div class="shop-order-details">
         <div>${rows}</div>
-        <div class="button-row no-print"><a class="primary-button" href="${escapeText(editHref)}"><i class="fa-solid fa-pen-to-square"></i> အချက်အလက်ပြင်ဆင်ရန်</a></div>
+        <div class="button-row no-print">
+            <a class="secondary-button" href="${escapeText(receiptHref)}"><i class="fa-solid fa-receipt"></i> ဘောက်ချာပြန်ထုတ်ရန်</a>
+            <a class="primary-button" href="${escapeText(editHref)}"><i class="fa-solid fa-pen-to-square"></i> အချက်အလက်ပြင်ဆင်ရန်</a>
+        </div>
     </div>`;
 }
 

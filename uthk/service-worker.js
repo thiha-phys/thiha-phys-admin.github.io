@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uthk-admin-shell-v8';
+const CACHE_NAME = 'uthk-admin-shell-v9';
 const APP_FILES = [
     './index.html',
     './style.css',
@@ -12,6 +12,7 @@ const APP_FILES = [
     './pages/historyorder.js',
     './pages/createorder.html',
     './pages/createorder.js',
+    './pages/receipt-actions.js',
     './pages/chnagerequest.html',
     './pages/chnagerequest.js',
     './pages/createvoucher.html',

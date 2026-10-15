@@ -18,8 +18,15 @@
         <div class="receipt-head"><div class="receipt-heading"><p class="eyebrow">PHYSICS LEARNING HUB</p><h2>ဆိုင်အမှာစာ ဘောက်ချာ</h2><strong id="receipt-voucher"></strong><p id="receipt-shop"></p></div><img class="receipt-logo" src="../logo.png" alt="UTHK logo"></div>
         <div id="receipt-content" class="receipt-grid"></div>
         <div class="receipt-total"><span>စုစုပေါင်း</span><strong id="receipt-total"></strong></div>
-        <div class="button-row no-print"><button id="print-shop-receipt" class="primary-button" type="button"><i class="fa-solid fa-print"></i> Print / Save PDF</button></div>
+        <div class="button-row no-print">
+            <button id="save-shop-receipt-image" class="secondary-button" type="button"><i class="fa-solid fa-image"></i> ပုံအဖြစ်သိမ်းရန်</button>
+            <button id="share-shop-receipt" class="secondary-button" type="button"><i class="fa-solid fa-share-nodes"></i> မျှဝေရန်</button>
+            <button id="print-shop-receipt" class="primary-button" type="button"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
+        </div>
+        <p id="shop-receipt-action-status" class="status-message no-print" role="status"></p>
     </section>
 </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="receipt-actions.js"></script>
 <script src="admin-api.js"></script><script src="shop-order.js"></script>
 </body></html>

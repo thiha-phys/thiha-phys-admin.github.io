@@ -1,6 +1,7 @@
 const shopOrderParams = new URLSearchParams(window.location.search);
 const selectedShopId = shopOrderParams.get('shop') || '';
 const editingVoucher = shopOrderParams.get('voucher') || '';
+const reprintingVoucher = shopOrderParams.get('receipt') === '1';
 const shopOrderForm = document.getElementById('shop-order-form');
 const itemFields = [
     ['Special Qty', 'Special Amount'],
@@ -177,7 +178,9 @@ async function loadShopOrderForm() {
         if (!selectedShop) throw new Error('ဆိုင်ကို ရှာမတွေ့ပါ။');
         document.title = `${selectedShop.name} · အမှာစာ | UTHK Admin`;
         document.getElementById('shop-order-title').textContent =
-            editingVoucher ? `${selectedShop.name} · အချက်အလက်ပြင်ဆင်ရန်` : `${selectedShop.name} · အမှာစာအသစ်`;
+            reprintingVoucher
+                ? `${selectedShop.name} · ဘောက်ချာပြန်ထုတ်ရန်`
+                : editingVoucher ? `${selectedShop.name} · အချက်အလက်ပြင်ဆင်ရန်` : `${selectedShop.name} · အမှာစာအသစ်`;
         document.getElementById('shop-order-back').href =
             editingVoucher
                 ? `shop-history.html?shop=${encodeURIComponent(selectedShop.id)}`
@@ -187,6 +190,10 @@ async function loadShopOrderForm() {
             const order = orders.find((candidate) => candidate['Voucher No'] === editingVoucher);
             if (!order) throw new Error('ဤဘောက်ချာနံပါတ်ဖြင့် အမှာစာမတွေ့ပါ။');
             renderFields(order);
+            if (reprintingVoucher) {
+                shopOrderForm.hidden = true;
+                showShopReceipt(order);
+            }
         } else {
             renderFields();
         }
@@ -236,4 +243,10 @@ shopOrderForm.addEventListener('submit', async (event) => {
 });
 
 document.getElementById('print-shop-receipt').addEventListener('click', () => window.print());
+attachReceiptActions({
+    receiptId: 'shop-receipt',
+    saveButtonId: 'save-shop-receipt-image',
+    shareButtonId: 'share-shop-receipt',
+    statusId: 'shop-receipt-action-status'
+});
 loadShopOrderForm();

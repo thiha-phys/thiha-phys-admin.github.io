@@ -40,7 +40,7 @@ function displayVoucher(order) {
     const deliveryService = order['Delivery Service'] || order.Delivery;
     const orderedDate = order['Ordered Date'] || order['Order Date'];
     const deliveredDate = order['Deliver Date'] || order['Delivered Date'] || order['Order Confirm'];
-    [
+    const infoRows = [
         ['အမည်', order.Name],
         ['ဖုန်းနံပါတ် ၁', order['Phone 1'] || order.Phone],
         ['ဖုန်းနံပါတ် ၂', order['Phone 2']],
@@ -48,9 +48,12 @@ function displayVoucher(order) {
         ['မှာယူသည့်ရက်', orderedDate],
         ['ပို့ဆောင်ရေး', deliveryService === 'Car' ? 'ကားတင်ရန်' : deliveryService],
         ['ပို့ဆောင်မည့်ရက်', deliveredDate],
-        ['ကားဂိတ် / ကားအမည်', order['Delivery Notes']],
         ['ငွေပေးချေမှု', order['Payment Method']]
-    ].forEach(([label, value]) => addReceiptLine(info, label, String(value || '')));
+    ];
+    if (deliveryService === 'Car') {
+        infoRows.push(['ကားဂိတ် / ကားအမည်', order['car inform'] || order['Delivery Notes']]);
+    }
+    infoRows.forEach(([label, value]) => addReceiptLine(info, label, String(value || '')));
     const itemList = document.getElementById('receipt-items');
     itemList.replaceChildren();
     const itemFields = [
@@ -138,3 +141,9 @@ document.getElementById('refresh-vouchers').addEventListener('click', async (eve
 });
 
 document.getElementById('print-voucher').addEventListener('click', () => window.print());
+attachReceiptActions({
+    receiptId: 'receipt',
+    saveButtonId: 'save-voucher-image',
+    shareButtonId: 'share-voucher',
+    statusId: 'voucher-action-status'
+});

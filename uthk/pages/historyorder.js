@@ -45,6 +45,9 @@ function renderPhoneLink(phone) {
 }
 
 function renderOrderDetails(order) {
+    const deliveryService = order['Delivery Service'] || order.Delivery;
+    const carInfo = order['car inform'] ||
+        (deliveryService === 'Car' ? order['Delivery Notes'] : '');
     const itemDetails = orderItems.map(([quantityField, amountField], index) => {
         const quantity = Number(order[quantityField] || 0);
         if (quantity <= 0) return '';
@@ -62,7 +65,7 @@ function renderOrderDetails(order) {
         ['KPay Account', order['KPay Account']],
         ['Pay Date', order['Pay Date']],
         ['Royal VOC No', order['Royal VOC No']],
-        ['Order Confirm', order['Order Confirm']],
+        ...(carInfo ? [['ကားဂိတ် / ကားအမည်', carInfo]] : []),
         ['Delivery', order.Delivery],
         ['Facebook Account Name', order['Facebook Account Name']]
     ].filter(([, value]) => value);
@@ -78,7 +81,8 @@ function renderOrderDetails(order) {
                 ${renderDetailLine('မှာယူသူ', order.Name)}
                 <div class="order-detail-line"><span>ဖုန်းနံပါတ်</span><strong>${renderPhoneLink(order.Phone)}</strong></div>
                 ${renderDetailLine('လိပ်စာ', order.Address)}
-                ${renderDetailLine('ပို့ဆောင်သည့်ရက်', order['Delivered Date'] ? formatOrderDateEnglish(order['Delivered Date']) : 'မပို့ရသေး')}
+                ${renderDetailLine('Ordered Date', formatOrderDateEnglish(order['Ordered Date'] || order['Order Date']))}
+                ${renderDetailLine('Delivered Date', (order['Delivered Date'] || order['Order Confirm']) ? formatOrderDateEnglish(order['Delivered Date'] || order['Order Confirm']) : 'မပို့ရသေး')}
                 ${extraDetails.map(([label, value]) => renderDetailLine(label, value)).join('')}
             </div>
         </div>

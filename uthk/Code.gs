@@ -13,6 +13,10 @@ const SHOP_ORDER_HEADERS = [
   'Total', 'Received', 'Kpay acc', 'pay date',
   'delivery service', 'car infrom', 'address', 'phone 1', 'phone 2'
 ];
+const SHOP_ORDER_CURRENCY_HEADERS = [
+  'Special Amount', 'Practice Amount', 'OQ Amount', 'Solution Amount',
+  'G11 handbook amount', 'G11 Objective amount', 'G10 handbook amount', 'Total', 'Received'
+];
 const BOOK_SHOPS = [
   { id: 'ko-htun', name: 'ကိုထွန်းစာပေ', discountRate: 25 },
   { id: 'bhone-myint-moe', name: 'ဘုန်းမြင့်မိုရ်စာပေ' },
@@ -48,8 +52,14 @@ const ORDER_HEADERS = [
   'G10 Handbook Qty', 'G10 Handbook Amount',
   'Total', 'Received', 'KPay Account', 'Pay Date',
   'Delivery Service', 'Delivery Fees', 'Total KG', 'Cash Collection',
-  'Facebook Name', 'Facebook Link', 'Royal Voucher',
+  'Facebook Name', 'Facebook Link', 'Royal Voucher', 'car inform',
   'Confirm Service Charge', 'Confirm Service COD', 'Payment Method', 'Delivery Notes'
+];
+const ORDER_CURRENCY_HEADERS = [
+  'Special Amount', 'Practice Amount', 'OQ Amount', 'Solution Amount',
+  'G11 Handbook Amount', 'G11 Objective Amount', 'G10 Handbook Amount',
+  'Total', 'Received', 'Delivery Fees', 'Cash Collection',
+  'Confirm Service Charge', 'Confirm Service COD'
 ];
 const ORDER_HEADER_ALIASES = {
   'Phone': 'Phone 1',
@@ -260,7 +270,7 @@ function listBookOrders_() {
   if (lastRow < 2) return [];
 
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
-  return sheet.getRange(2, 1, lastRow - 1, headers.length).getDisplayValues()
+  return sheet.getRange(2, 1, lastRow - 1, headers.length).getValues()
     .filter(function (row) { return row[0] !== ''; })
     .map(function (row) {
       const order = {};
@@ -294,7 +304,7 @@ function updateBookOrder_(order) {
     const columnCount = sheet.getLastColumn();
     const headers = sheet.getRange(1, 1, 1, columnCount).getDisplayValues()[0];
     const range = sheet.getRange(rowNumber, 1, 1, columnCount);
-    const values = range.getDisplayValues()[0];
+    const values = range.getValues()[0];
     headers.forEach(function (header, index) {
       if (header === 'Voucher No' || !ORDER_HEADERS.includes(header)) return;
       let inputHeader = header;
@@ -305,11 +315,14 @@ function updateBookOrder_(order) {
         });
       }
       if (!inputHeader) return;
-      const value = order[inputHeader] == null ? '' : String(order[inputHeader]);
-      values[index] = sheetSafeText_(value);
+      const value = order[inputHeader] == null ? '' : order[inputHeader];
+      values[index] = ORDER_CURRENCY_HEADERS.includes(header)
+        ? currencySheetValue_(value)
+        : sheetSafeText_(String(value));
     });
     range.setNumberFormat('@');
     range.setValues([values]);
+    applyCurrencyRowFormats_(sheet, rowNumber, headers, ORDER_CURRENCY_HEADERS);
     const updated = {};
     headers.forEach(function (header, index) {
       if (header) updated[header] = values[index];
@@ -346,14 +359,15 @@ function syncRoyalShipments_(waybills) {
       if (result.result === 'linked') {
         row[columns.voucher] = sheetSafeText_(result.waybillNo);
       }
-      row[columns.serviceCharge] = sheetSafeText_(result.serviceCharge);
-      row[columns.cod] = sheetSafeText_(result.cod);
+      row[columns.serviceCharge] = currencySheetValue_(result.serviceCharge);
+      row[columns.cod] = currencySheetValue_(result.cod);
       row[columns.notes] = sheetSafeText_(result.state);
     });
     Object.keys(updatedRows).forEach(function (rowNumber) {
       const range = sheet.getRange(Number(rowNumber), 1, 1, headers.length);
       range.setNumberFormat('@');
       range.setValues([updatedRows[rowNumber]]);
+      applyCurrencyRowFormats_(sheet, Number(rowNumber), headers, ORDER_CURRENCY_HEADERS);
     });
     return jsonResponse_({
       ok: true,
@@ -603,7 +617,7 @@ function listShopOrders_(shopId) {
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return [];
     return sheet.getRange(2, 1, lastRow - 1, SHOP_ORDER_HEADERS.length)
-      .getDisplayValues()
+      .getValues()
       .filter(function (row) { return row[0] !== ''; })
       .map(function (row) {
         const order = {};
@@ -695,14 +709,14 @@ function normalizeShopOrder_(shopId, order) {
     itemCount += quantity;
     total += amount;
     values[fields[0]] = String(quantity);
-    values[fields[1]] = String(amount);
+    values[fields[1]] = amount;
   });
   if (!Number.isSafeInteger(itemCount) || itemCount < 1) {
     throw new Error('At least one book must be ordered.');
   }
   if (!Number.isSafeInteger(total)) throw new Error('The order total is too large.');
-  values.Total = String(total);
-  values.Received = String(shopNumber_(order.Received, 'Received'));
+  values.Total = total;
+  values.Received = shopNumber_(order.Received, 'Received');
   values['Kpay acc'] = shopText_(order['Kpay acc']);
   values['pay date'] = optionalShopDate_(order['pay date'], 'pay date');
   values['delivery service'] = shopText_(order['delivery service']);
@@ -714,7 +728,7 @@ function normalizeShopOrder_(shopId, order) {
 }
 
 function shopNumber_(value, fieldName) {
-  const text = value == null ? '' : String(value).trim();
+  const text = value == null ? '' : String(value).trim().replace(/,/g, '');
   const number = text === '' ? 0 : Number(text);
   if (!Number.isSafeInteger(number) || number < 0) {
     throw new Error(fieldName + ' must be a non-negative whole number.');
@@ -724,6 +738,23 @@ function shopNumber_(value, fieldName) {
 
 function shopText_(value) {
   return value == null ? '' : String(value).trim();
+}
+
+function currencySheetValue_(value) {
+  const text = value == null ? '' : String(value).trim().replace(/,/g, '');
+  if (!text) return '';
+  const number = Number(text);
+  if (!Number.isSafeInteger(number) || number < 0) {
+    throw new Error('Currency values must be non-negative whole numbers.');
+  }
+  return number;
+}
+
+function applyCurrencyRowFormats_(sheet, rowNumber, headers, currencyHeaders) {
+  const formats = [headers.map(function (header) {
+    return currencyHeaders.includes(header) ? '#,##0' : '@';
+  })];
+  sheet.getRange(rowNumber, 1, 1, headers.length).setNumberFormats(formats);
 }
 
 function requiredShopDate_(value, fieldName) {
@@ -754,12 +785,15 @@ function appendShopOrder_(sheet, order) {
 
 function writeShopOrder_(sheet, rowNumber, order) {
   const row = SHOP_ORDER_HEADERS.map(function (header) {
-    const value = order[header] == null ? '' : String(order[header]);
-    return sheetSafeText_(value);
+    const value = order[header] == null ? '' : order[header];
+    return SHOP_ORDER_CURRENCY_HEADERS.includes(header)
+      ? currencySheetValue_(value)
+      : sheetSafeText_(String(value));
   });
   const range = sheet.getRange(rowNumber, 1, 1, SHOP_ORDER_HEADERS.length);
   range.setNumberFormat('@');
   range.setValues([row]);
+  applyCurrencyRowFormats_(sheet, rowNumber, SHOP_ORDER_HEADERS, SHOP_ORDER_CURRENCY_HEADERS);
 }
 
 function getShopOrdersSheet_(shopId, createIfMissing) {
@@ -1099,7 +1133,8 @@ function createBookOrder_(order) {
       'Delivery Fees': String(deliveryFees),
       'Total KG': String(totalWeight),
       'Cash Collection': String(cashCollection),
-      'Delivery Notes': deliveryNotes
+      'car inform': deliveryNotes,
+      'Delivery Notes': ''
     };
     BOOK_ORDER_ITEMS.forEach(function (book) {
       values[book.quantityHeader] = String(quantities[book.id]);
@@ -1109,13 +1144,16 @@ function createBookOrder_(order) {
     });
     headers.forEach(function (header, index) {
       if (Object.prototype.hasOwnProperty.call(values, header)) {
-        row[index] = sheetSafeText_(values[header]);
+        row[index] = ORDER_CURRENCY_HEADERS.includes(header)
+          ? currencySheetValue_(values[header])
+          : sheetSafeText_(values[header]);
       }
     });
     const nextRow = sheet.getLastRow() + 1;
     const range = sheet.getRange(nextRow, 1, 1, headers.length);
     range.setNumberFormat('@');
     range.setValues([row]);
+    applyCurrencyRowFormats_(sheet, nextRow, headers, ORDER_CURRENCY_HEADERS);
     return jsonResponse_({
       ok: true,
       order: {
@@ -1132,6 +1170,7 @@ function createBookOrder_(order) {
         payableTotal: totalPayable,
         totalKg: totalWeight,
         cashCollection: cashCollection,
+        carInfo: deliveryNotes,
         deliveryNotes: deliveryNotes,
         items: itemRows
       }
