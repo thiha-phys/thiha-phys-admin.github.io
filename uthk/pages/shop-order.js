@@ -245,7 +245,6 @@ shopOrderForm.addEventListener('submit', async (event) => {
 document.getElementById('print-shop-receipt').addEventListener('click', () => window.print());
 attachReceiptActions({
     receiptId: 'shop-receipt',
-    saveButtonId: 'save-shop-receipt-image',
     shareButtonId: 'share-shop-receipt',
     statusId: 'shop-receipt-action-status'
 });

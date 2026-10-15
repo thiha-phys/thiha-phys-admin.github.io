@@ -143,7 +143,6 @@ document.getElementById('refresh-vouchers').addEventListener('click', async (eve
 document.getElementById('print-voucher').addEventListener('click', () => window.print());
 attachReceiptActions({
     receiptId: 'receipt',
-    saveButtonId: 'save-voucher-image',
     shareButtonId: 'share-voucher',
     statusId: 'voucher-action-status'
 });

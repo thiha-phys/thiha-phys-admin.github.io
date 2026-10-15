@@ -299,7 +299,6 @@ form.addEventListener('submit', async (event) => {
 document.getElementById('print-created-receipt').addEventListener('click', () => window.print());
 attachReceiptActions({
     receiptId: 'created-receipt',
-    saveButtonId: 'save-created-receipt-image',
     shareButtonId: 'share-created-receipt',
     statusId: 'created-receipt-action-status'
 });

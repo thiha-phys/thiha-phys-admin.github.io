@@ -1,7 +1,6 @@
-function attachReceiptActions({ receiptId, saveButtonId, shareButtonId, statusId }) {
+function attachReceiptActions({ receiptId, shareButtonId, statusId }) {
     const receipt = document.getElementById(receiptId);
     const status = document.getElementById(statusId);
-    const saveButton = document.getElementById(saveButtonId);
     const shareButton = document.getElementById(shareButtonId);
 
     function getFileName() {
@@ -25,15 +24,6 @@ function attachReceiptActions({ receiptId, saveButtonId, shareButtonId, statusId
         return new File([blob], getFileName(), { type: 'image/png' });
     }
 
-    function downloadImage(file) {
-        const url = URL.createObjectURL(file);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = file.name;
-        link.click();
-        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
     async function runAction(button, action) {
         button.disabled = true;
         status.className = 'status-message no-print';
@@ -54,23 +44,13 @@ function attachReceiptActions({ receiptId, saveButtonId, shareButtonId, statusId
         }
     }
 
-    saveButton.addEventListener('click', () => runAction(saveButton, async (file) => {
-        if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-            await navigator.share({ files: [file], title: 'ဘောက်ချာပုံ' });
-            status.textContent = 'Photos / Gallery ထဲသိမ်းရန် ဖုန်း၏ Share menu မှ ရွေးပါ။';
-        } else {
-            downloadImage(file);
-            status.textContent = 'ဘောက်ချာ PNG ကို Download လုပ်ပြီးပါပြီ။ ဖုန်း၏ Downloads မှ Gallery ထဲသိမ်းနိုင်ပါသည်။';
-        }
-    }));
-
     shareButton.addEventListener('click', () => runAction(shareButton, async (file) => {
         if (navigator.canShare?.({ files: [file] }) && navigator.share) {
             await navigator.share({ files: [file], title: 'ဘောက်ချာပုံ' });
             status.textContent = 'ဘောက်ချာပုံကို မျှဝေပြီးပါပြီ။';
         } else {
-            downloadImage(file);
-            status.textContent = 'ဤ browser တွင် image share မရနိုင်ပါ။ PNG ကို Download လုပ်ထားပါသည်။';
+            status.textContent = 'ဤ browser တွင် image share မရနိုင်ပါ။ HTTPS အသုံးပြုသော ဖုန်း browser မှ ပြန်စမ်းပါ။';
+            status.classList.add('error');
         }
     }));
 }
