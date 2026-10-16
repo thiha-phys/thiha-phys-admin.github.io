@@ -54,7 +54,7 @@ function attachReceiptActions({ receiptId, shareButtonId, statusId }) {
 
         try {
             if (navigator.share && navigator.canShare?.({ files: [file] })) {
-                await navigator.share({ files: [file], title: 'ဘောက်ချာပုံ', text: shareData.text, url: shareData.url });
+                await navigator.share({ files: [file], title: 'ဘောက်ချာပုံ' });
                 status.textContent = 'ဘောက်ချာပုံကို မျှဝေပြီးပါပြီ။';
                 return;
             }
