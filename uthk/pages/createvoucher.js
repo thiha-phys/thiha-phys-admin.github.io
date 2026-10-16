@@ -33,6 +33,28 @@ function addReceiptLine(container, label, value) {
     return line;
 }
 
+function formatReceiptDate(value) {
+    const text = String(value || '').trim();
+    if (!text) return '';
+
+    const isoDate = /^(\d{4})-(\d{2})-(\d{2})(?:T|$)/.exec(text);
+    if (isoDate) return `${isoDate[3]}.${isoDate[2]}.${isoDate[1]}`;
+
+    const displayDate = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})/.exec(text);
+    if (displayDate) {
+        return `${displayDate[1].padStart(2, '0')}.${displayDate[2].padStart(2, '0')}.${displayDate[3]}`;
+    }
+
+    const parsed = new Date(text);
+    return Number.isNaN(parsed.getTime())
+        ? text
+        : new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).format(parsed).replace(/\//g, '.');
+}
+
 function displayVoucher(order) {
     document.getElementById('receipt-voucher').textContent = `ဘောက်ချာအမှတ် ${order['Voucher No']}`;
     const info = document.getElementById('receipt-info');
@@ -47,7 +69,7 @@ function displayVoucher(order) {
         ['လိပ်စာ', order.Address],
         ['မှာယူသည့်ရက်', orderedDate],
         ['ပို့ဆောင်ရေး', deliveryService === 'Car' ? 'ကားတင်ရန်' : deliveryService],
-        ['ပို့ဆောင်မည့်ရက်', deliveredDate],
+        ['ပို့ဆောင်သည့်ရက်', formatReceiptDate(deliveredDate)],
         ['ငွေပေးချေမှု', order['Payment Method']]
     ];
     if (deliveryService === 'Car') {

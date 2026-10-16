@@ -1,3 +1,15 @@
+function orderDateIso(value) {
+    const text = String(value || '').trim();
+    const isoDate = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
+    if (isoDate) return `${isoDate[1]}-${isoDate[2]}-${isoDate[3]}`;
+
+    const dayFirstDate = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s|$)/.exec(text);
+    if (dayFirstDate) {
+        return `${dayFirstDate[3]}-${dayFirstDate[2].padStart(2, '0')}-${dayFirstDate[1].padStart(2, '0')}`;
+    }
+    return '';
+}
+
 function renderOrdersChart(orders) {
     const chart = document.getElementById('orders-chart');
     const days = [];
@@ -7,9 +19,9 @@ function renderOrdersChart(orders) {
         const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         days.push({ iso, label: date.toLocaleDateString('my-MM', { day: 'numeric' }), count: 0 });
     }
+    const countsByDate = new Map(days.map((day) => [day.iso, day]));
     orders.forEach((order) => {
-        const date = String(order['Order Date'] || '').slice(0, 10);
-        const day = days.find((item) => item.iso === date);
+        const day = countsByDate.get(orderDateIso(order['Order Date']));
         if (day) day.count += 1;
     });
     const max = Math.max(1, ...days.map((day) => day.count));
