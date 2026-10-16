@@ -53,13 +53,16 @@ const ORDER_HEADERS = [
   'Total', 'Received', 'KPay Account', 'Pay Date',
   'Delivery Service', 'Delivery Fees', 'Total KG', 'Cash Collection',
   'Facebook Name', 'Facebook Link', 'Royal Voucher', 'car inform',
-  'Confirm Service Charge', 'Confirm Service COD', 'Payment Method', 'Delivery Notes'
+  'Confirm Service Charge', 'Confirm Service COD', 'Payment Method', 'Delivery Notes',
+  'Royal Statement Weight', 'Royal Statement COD Amount', 'Royal Statement Delivery',
+  'Royal Statement COD Charges', 'Royal Statement Paid Charges', 'Royal Statement Paid Date'
 ];
 const ORDER_CURRENCY_HEADERS = [
   'Special Amount', 'Practice Amount', 'OQ Amount', 'Solution Amount',
   'G11 Handbook Amount', 'G11 Objective Amount', 'G10 Handbook Amount',
   'Total', 'Received', 'Delivery Fees', 'Cash Collection',
-  'Confirm Service Charge', 'Confirm Service COD'
+  'Confirm Service Charge', 'Confirm Service COD', 'Royal Statement COD Amount',
+  'Royal Statement Delivery', 'Royal Statement COD Charges', 'Royal Statement Paid Charges'
 ];
 const ORDER_HEADER_ALIASES = {
   'Phone': 'Phone 1',
@@ -141,6 +144,9 @@ function doPost(e) {
     }
     if (action === 'syncRoyalShipments') {
       return syncRoyalShipments_(request.waybills);
+    }
+    if (action === 'syncRoyalStatement') {
+      return syncRoyalStatement_(request.entries);
     }
     if (action === 'listShopOrders') {
       return jsonResponse_({
@@ -377,6 +383,128 @@ function syncRoyalShipments_(waybills) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function syncRoyalStatement_(entries) {
+  const normalizedEntries = normalizeRoyalStatementEntries_(entries);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getOrdersSheet_();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+    const voucherColumn = headers.indexOf('Royal Voucher');
+    const statementColumns = {
+      weight: headers.indexOf('Royal Statement Weight'),
+      codAmount: headers.indexOf('Royal Statement COD Amount'),
+      delivery: headers.indexOf('Royal Statement Delivery'),
+      codCharges: headers.indexOf('Royal Statement COD Charges'),
+      paidCharges: headers.indexOf('Royal Statement Paid Charges'),
+      paidDate: headers.indexOf('Royal Statement Paid Date')
+    };
+    const missingColumns = Object.keys(statementColumns).filter(function (key) {
+      return statementColumns[key] === -1;
+    });
+    if (voucherColumn === -1 || missingColumns.length) {
+      throw new Error('The Book Orders sheet is missing Royal statement columns.');
+    }
+    const lastRow = sheet.getLastRow();
+    const rows = lastRow < 2
+      ? []
+      : sheet.getRange(2, 1, lastRow - 1, headers.length).getDisplayValues();
+    const rowsByVoucher = Object.create(null);
+    rows.forEach(function (row, index) {
+      const voucher = normalizeRoyalVoucher_(row[voucherColumn]);
+      if (!voucher) return;
+      if (!rowsByVoucher[voucher]) rowsByVoucher[voucher] = [];
+      rowsByVoucher[voucher].push(index + 2);
+    });
+
+    const updates = [];
+    const results = normalizedEntries.map(function (entry) {
+      const matchingRows = rowsByVoucher[normalizeRoyalVoucher_(entry.waybillNo)] || [];
+      if (matchingRows.length > 1) {
+        return { waybillNo: entry.waybillNo, result: 'duplicate', message: 'Duplicate Royal Voucher values were found; this row was not updated.' };
+      }
+      if (!matchingRows.length) {
+        return { waybillNo: entry.waybillNo, result: 'unmatched', message: 'No existing Royal Voucher matched this waybill.' };
+      }
+      updates.push({ rowNumber: matchingRows[0], entry: entry });
+      return { waybillNo: entry.waybillNo, result: 'updated', message: 'Matched by Royal Voucher and updated.' };
+    });
+
+    updates.forEach(function (update) {
+      const entry = update.entry;
+      const values = [
+        entry.weight,
+        currencySheetValue_(entry.codAmount),
+        currencySheetValue_(entry.delivery),
+        currencySheetValue_(entry.codCharges),
+        entry.paidCharges,
+        sheetSafeText_(entry.paidDate)
+      ];
+      sheet.getRange(update.rowNumber, statementColumns.weight + 1, 1, values.length)
+        .setValues([values]);
+      applyCurrencyRowFormats_(sheet, update.rowNumber, headers, ORDER_CURRENCY_HEADERS);
+    });
+
+    return jsonResponse_({
+      ok: true,
+      results: results,
+      updatedCount: updates.length,
+      unmatchedCount: results.filter(function (result) { return result.result === 'unmatched'; }).length,
+      duplicateCount: results.filter(function (result) { return result.result === 'duplicate'; }).length
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function normalizeRoyalStatementEntries_(entries) {
+  if (!Array.isArray(entries) || entries.length === 0 || entries.length > 1000) {
+    throw new Error('Import must contain between 1 and 1,000 Royal statement rows.');
+  }
+  const seen = Object.create(null);
+  return entries.map(function (entry) {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error('A Royal statement row is invalid.');
+    }
+    const waybillNo = requiredText_(entry.waybillNo, 'Royal VOC');
+    const duplicateKey = normalizeRoyalVoucher_(waybillNo);
+    if (seen[duplicateKey]) {
+      throw new Error('The Royal statement contains a duplicate waybill number: ' + waybillNo);
+    }
+    seen[duplicateKey] = true;
+    const weight = Number(entry.weight);
+    if (!Number.isFinite(weight) || weight <= 0 || weight > 10000) {
+      throw new Error('Royal statement weight must be a positive number.');
+    }
+    const amounts = ['codAmount', 'delivery', 'codCharges'].reduce(function (result, key) {
+      result[key] = currencySheetValue_(entry[key]);
+      if (result[key] === '') throw new Error('Royal statement amount fields are required.');
+      return result;
+    }, {});
+    const paidCharges = Number(entry.paidCharges);
+    if (!Number.isSafeInteger(paidCharges)) {
+      throw new Error('Royal statement Paid Charges must be a whole number.');
+    }
+    const paidDate = requiredText_(entry.paidDate, 'Paid Date');
+    if (waybillNo.length > 100 || paidDate.length > 100) {
+      throw new Error('A Royal statement field is too long.');
+    }
+    return {
+      waybillNo: waybillNo,
+      weight: String(weight),
+      codAmount: amounts.codAmount,
+      delivery: amounts.delivery,
+      codCharges: amounts.codCharges,
+      paidCharges: paidCharges,
+      paidDate: paidDate
+    };
+  });
+}
+
+function normalizeRoyalVoucher_(value) {
+  return String(value || '').trim().toLocaleUpperCase();
 }
 
 function normalizeRoyalWaybills_(waybills) {

@@ -63,8 +63,37 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return true;
     }
 
+    if (message.type === 'SYNC_ROYAL_STATEMENT') {
+        syncRoyalStatement_(message.entries).then(sendResponse).catch((error) => {
+            sendResponse({
+                ok: false,
+                message: error.message || 'Royal statement sync မအောင်မြင်ပါ။'
+            });
+        });
+        return true;
+    }
+
     return false;
 });
+
+async function syncRoyalStatement_(entries) {
+    if (!Array.isArray(entries) || entries.length === 0 || entries.length > MAX_WAYBILLS) {
+        throw new Error('Royal statement စာရင်းမမှန်ပါ သို့မဟုတ် 1,000 ခုထက်များနေသည်။');
+    }
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({ action: 'syncRoyalStatement', entries })
+    });
+    if (!response.ok) {
+        throw new Error(`Google Sheet request failed (${response.status}).`);
+    }
+    const result = await response.json();
+    if (!result.ok || !Array.isArray(result.results)) {
+        throw new Error(result.error || result.message || 'Google Sheet မှ statement sync ကို လက်မခံပါ။');
+    }
+    return result;
+}
 
 async function syncRoyalShipments_(waybills) {
     const now = Date.now();

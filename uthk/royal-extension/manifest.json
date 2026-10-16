@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "UTHK Royal Shipment Sync",
-  "version": "1.0.0",
-  "description": "Automatically syncs Royal shipment waybills and status to the UTHK Google Sheet.",
+  "version": "1.1.0",
+  "description": "Syncs Royal shipments and statement details to the UTHK Google Sheet.",
   "permissions": [
     "alarms",
     "storage",
@@ -23,6 +23,15 @@
       ],
       "js": [
         "content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://member.royalx.biz/statement*"
+      ],
+      "js": [
+        "statement-content.js"
       ],
       "run_at": "document_idle"
     }
