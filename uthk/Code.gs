@@ -1,6 +1,7 @@
 const SHEET_NAME = 'Profiles';
 const HEADERS = ['Name', 'Job', 'Email', 'Phone'];
 const ORDERS_SHEET_NAME = 'Book Orders';
+const WAY_SLIT_SHEET_NAME = 'Way Slit';
 const SHOP_ORDER_HEADERS = [
   'Voucher No', 'Order Date', 'Delivered Date',
   'Special Qty', 'Special Amount',
@@ -160,6 +161,9 @@ function doPost(e) {
     if (action === 'addBookStock') {
       return addBookStock_(request.stock);
     }
+    if (action === 'getWaySlitOrder') {
+      return jsonResponse_({ ok: true, order: getWaySlitOrder_(request.voucherNo) });
+    }
     if (action === 'submitFeedback') {
       return submitRecommendation_(request.profile);
     }
@@ -264,6 +268,130 @@ function doPost(e) {
   }
 }
 
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('UTHK')
+    .addItem('Create Way Slit sheet', 'ensureWaySlitSheet_')
+    .addToUi();
+}
+
+function ensureWaySlitSheet_() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) {
+    throw new Error('Bind this Apps Script project to the target Google Sheet.');
+  }
+
+  let sheet = spreadsheet.getSheetByName(WAY_SLIT_SHEET_NAME);
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(WAY_SLIT_SHEET_NAME);
+  }
+
+  const summaryRange = sheet.getRange('A1:K20');
+  sheet.clearContents();
+  sheet.clearFormats();
+  summaryRange.clear();
+
+  const voucherCell = '$B$2';
+  const lookup = function (headerName) {
+    return `IFERROR(VLOOKUP(${voucherCell},'Book Orders'!$A:$AE, MATCH("${headerName}",'Book Orders'!$1:$1,0), FALSE), "")`;
+  };
+  const toFormula = `IF(${voucherCell}="","",IFERROR("Voucher No: "&${lookup('Voucher No')}&CHAR(10)&"Name: "&${lookup('Name')}&CHAR(10)&"Phone: "&TRIM(${lookup('Phone 1')}&" "&${lookup('Phone 2')})&CHAR(10)&"Address: "&${lookup('Address')},""))`;
+
+  sheet.getRange(1, 1, 18, 2).setValues([['WAY SLIT', ''], ['Voucher No', ''], ['', ''], ['To', ''], [toFormula, ''], ['', ''], ['Books', ''], ['', ''], ['S', ''], ['P', ''], ['OQ', ''], ['Sol', ''], ['11H', ''], ['11O', ''], ['10H', ''], ['', ''], ['Cash Collection', ''], ['KG', '']]);
+
+  const labels = [
+    ['S', lookup('Special Qty')],
+    ['P', lookup('Practice Qty')],
+    ['OQ', lookup('OQ Qty')],
+    ['Sol', lookup('Solution Qty')],
+    ['11H', lookup('G11 Handbook Qty')],
+    ['11O', lookup('G11 Objective Qty')],
+    ['10H', lookup('G10 Handbook Qty')],
+    ['Cash Collection', lookup('Cash Collection')],
+    ['KG', lookup('Total KG')]
+  ];
+
+  sheet.getRange('A8:B16').setValues([
+    ['S', '=IF($B$2="","",' + lookup('Special Qty') + ')'],
+    ['P', '=IF($B$2="","",' + lookup('Practice Qty') + ')'],
+    ['OQ', '=IF($B$2="","",' + lookup('OQ Qty') + ')'],
+    ['Sol', '=IF($B$2="","",' + lookup('Solution Qty') + ')'],
+    ['11H', '=IF($B$2="","",' + lookup('G11 Handbook Qty') + ')'],
+    ['11O', '=IF($B$2="","",' + lookup('G11 Objective Qty') + ')'],
+    ['10H', '=IF($B$2="","",' + lookup('G10 Handbook Qty') + ')'],
+    ['Cash Collection', '=IF($B$2="","",' + lookup('Cash Collection') + ')'],
+    ['KG', '=IF($B$2="","",' + lookup('Total KG') + ')']
+  ]);
+
+  sheet.getRange('A1').setFontSize(20).setFontWeight('bold');
+  sheet.getRange('A2:B2').setFontSize(11).setFontWeight('bold');
+  sheet.getRange('A4').setFontSize(16).setFontWeight('bold');
+  sheet.getRange('A5').setFontSize(10).setWrap(true);
+  sheet.getRange('A8:B18').setFontSize(11).setVerticalAlignment('middle');
+  sheet.getRange('A1:B18').setBorder(true, true, true, true, true, true, '#000000', SpreadsheetApp.BorderStyle.SOLID);
+  sheet.getRange('A1:B18').setHorizontalAlignment('left');
+  sheet.getRange('A1').setHorizontalAlignment('left');
+  sheet.getRange('A2:B2').setBackground('#f3f3f3');
+  sheet.setFrozenRows(1);
+  sheet.setColumnWidths(1, 1, 20);
+  sheet.setColumnWidths(2, 1, 42);
+  sheet.setRowHeights(1, 18, 26);
+  sheet.setRowHeights(5, 10, 100);
+
+  const pageSetup = sheet.getRange('A1:B18').getSheet().getPageSetup();
+  pageSetup.setLandscape(false);
+  pageSetup.setFitToWidth(1);
+  pageSetup.setFitToHeight(1);
+  pageSetup.setScale(100);
+  pageSetup.setMargin(SpreadsheetApp.Dimension.TOP, 0.2);
+  pageSetup.setMargin(SpreadsheetApp.Dimension.RIGHT, 0.2);
+  pageSetup.setMargin(SpreadsheetApp.Dimension.BOTTOM, 0.2);
+  pageSetup.setMargin(SpreadsheetApp.Dimension.LEFT, 0.2);
+  pageSetup.setPaperSize(SpreadsheetApp.PaperSize.A4);
+  sheet.setPrintArea('A1:B18');
+
+  return sheet;
+}
+
+function getWaySlitOrder_(voucherNo) {
+  const sheet = getOrdersSheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+  const rowIndex = sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues()
+    .findIndex(function (value) {
+      return String(value[0]).trim() === String(voucherNo || '').trim();
+    });
+  if (rowIndex < 0) return null;
+
+  const values = sheet.getRange(rowIndex + 2, 1, 1, headers.length).getValues()[0];
+  const order = {};
+  headers.forEach(function (header, index) {
+    order[header] = values[index];
+  });
+
+  return {
+    voucherNo: order['Voucher No'],
+    to: [
+      order['Voucher No'] || '',
+      order.Name || '',
+      order['Phone 1'] || '',
+      order['Phone 2'] || '',
+      order.Address || ''
+    ].filter(Boolean).join('\n'),
+    s: Number(order['Special Qty'] || 0),
+    p: Number(order['Practice Qty'] || 0),
+    oq: Number(order['OQ Qty'] || 0),
+    sol: Number(order['Solution Qty'] || 0),
+    h11: Number(order['G11 Handbook Qty'] || 0),
+    o11: Number(order['G11 Objective Qty'] || 0),
+    h10: Number(order['G10 Handbook Qty'] || 0),
+    cashCollection: Number(order['Cash Collection'] || 0),
+    kg: Number(order['Total KG'] || 0)
+  };
+}
+
 function listBookOrders_() {
   const sheet = getOrdersSheet_();
   const lastRow = sheet.getLastRow();
@@ -323,6 +451,7 @@ function updateBookOrder_(order) {
     range.setNumberFormat('@');
     range.setValues([values]);
     applyCurrencyRowFormats_(sheet, rowNumber, headers, ORDER_CURRENCY_HEADERS);
+    ensureWaySlitSheet_();
     const updated = {};
     headers.forEach(function (header, index) {
       if (header) updated[header] = values[index];
@@ -1154,6 +1283,7 @@ function createBookOrder_(order) {
     range.setNumberFormat('@');
     range.setValues([row]);
     applyCurrencyRowFormats_(sheet, nextRow, headers, ORDER_CURRENCY_HEADERS);
+    ensureWaySlitSheet_();
     return jsonResponse_({
       ok: true,
       order: {

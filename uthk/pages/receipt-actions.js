@@ -45,12 +45,41 @@ function attachReceiptActions({ receiptId, shareButtonId, statusId }) {
     }
 
     shareButton.addEventListener('click', () => runAction(shareButton, async (file) => {
-        if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-            await navigator.share({ files: [file], title: 'ဘောက်ချာပုံ' });
-            status.textContent = 'ဘောက်ချာပုံကို မျှဝေပြီးပါပြီ။';
-        } else {
-            status.textContent = 'ဤ browser တွင် image share မရနိုင်ပါ။ HTTPS အသုံးပြုသော ဖုန်း browser မှ ပြန်စမ်းပါ။';
+        const voucherText = receipt.querySelector('#receipt-voucher')?.textContent || 'ဘောက်ချာ';
+        const shareData = {
+            title: 'ဘောက်ချာ',
+            text: `ဘောက်ချာ: ${voucherText}`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'ဘောက်ချာပုံ', text: shareData.text, url: shareData.url });
+                status.textContent = 'ဘောက်ချာပုံကို မျှဝေပြီးပါပြီ။';
+                return;
+            }
+
+            if (navigator.share) {
+                await navigator.share(shareData);
+                status.textContent = 'ဘောက်ချာအချက်အလက်ကို မျှဝေပြီးပါပြီ။';
+                return;
+            }
+
+            status.textContent = 'ဤ browser တွင် မျှဝေမှုကို မပံ့ပိုးပါ။ Telegram / Viber / Messenger ကိုရွေးချယ်ရန် HTTPS ဖုန်း browser သို့ ပြောင်းပါ။';
             status.classList.add('error');
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                status.textContent = 'မျှဝေမှုကို ပယ်ဖျက်လိုက်ပါသည်။';
+            } else {
+                console.warn('Falling back from file share to text share.', error);
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                    status.textContent = 'ဘောက်ချာအချက်အလက်ကို မျှဝေပြီးပါပြီ။';
+                    return;
+                }
+                status.textContent = 'ဤ browser တွင် မျှဝေမှုကို မပံ့ပိုးပါ။';
+                status.classList.add('error');
+            }
         }
     }));
 }
