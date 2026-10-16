@@ -132,6 +132,7 @@ button:disabled { cursor: wait; opacity: .65; }
 .badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 20px; padding: 4px 9px; background: #edf2fa; color: #63718a; font-size: 11px; }
 .badge.good { background: #e5f7ef; color: #18825e; }
 .badge.warning { background: #fff3df; color: #b06b14; }
+.badge.payment-method { background: #eaf1ff; color: #2f63bd; }
 .empty-state { padding: 32px 15px; border: 1px dashed #ced7e4; border-radius: 13px; text-align: center; color: var(--muted); }
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .shop-card { min-height: 126px; display: grid; justify-items: center; align-content: center; gap: 9px; padding: 17px; border: 1px solid var(--line); border-radius: 16px; color: var(--ink); background: #fff; box-shadow: var(--shadow); text-align: center; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }

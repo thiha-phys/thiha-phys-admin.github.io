@@ -44,6 +44,13 @@ function renderPhoneLink(phone) {
         : escapeText(text);
 }
 
+function paymentMethodLabel(value) {
+    const method = String(value || '').trim().toLocaleLowerCase();
+    if (method === 'cod') return 'COD';
+    if (method === 'kbz pay' || method === 'kpay') return 'KPay';
+    return '';
+}
+
 function renderOrderDetails(order) {
     const deliveryService = order['Delivery Service'] || order.Delivery;
     const carInfo = order['car inform'] ||
@@ -116,6 +123,7 @@ function renderOrders() {
         card.className = 'order-card';
         const delivered = Boolean(order['Delivered Date']);
         const paid = Number(order['Amount Received'] || 0) >= Number(order.Total || 0);
+        const paymentMethod = paymentMethodLabel(order['Payment Method']);
         card.innerHTML = `
             <summary class="order-card-summary">
                 <span class="order-card-heading">
@@ -123,6 +131,7 @@ function renderOrders() {
                     <span class="order-card-statuses">
                         <span class="badge ${delivered ? 'good' : 'warning'}">${delivered ? 'ပို့ပြီး' : 'မပို့ရသေး'}</span>
                         <span class="badge ${paid ? 'good' : 'warning'}">${paid ? 'ငွေရှင်းပြီး' : 'ငွေမရှင်းရသေး'}</span>
+                        ${paymentMethod ? `<span class="badge payment-method">${escapeText(paymentMethod)}</span>` : ''}
                     </span>
                 </span>
                 <span class="order-card-divider"></span>
