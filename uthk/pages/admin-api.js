@@ -270,7 +270,11 @@
         'Amount Received': 'Received',
         'Royal VOC No': 'Royal Voucher',
         Delivery: 'Delivery Service',
-        'Facebook Account Name': 'Facebook Name'
+        'Facebook Account Name': 'Facebook Name',
+        'Confirm Service Charge': 'Royal Shipment Service Charge',
+        'Confirm Service COD': 'Royal Shipment COD Amount',
+        'Royal Statement COD Charges': 'Royal Statement COD Charge',
+        'Royal Statement Paid Charges': 'Royal Statement Paid Charge'
     };
 
     function normalizeOrder(order) {
@@ -458,6 +462,14 @@
         return result;
     }
 
+    function importRoyalShipmentExport(entries) {
+        return request('importRoyalShipmentExport', { entries });
+    }
+
+    function importRoyalStatementExport(entries) {
+        return request('importRoyalStatementExport', { entries });
+    }
+
     async function getShops() {
         return BOOK_SHOPS.map((shop) => ({ ...shop }));
     }
@@ -507,6 +519,8 @@
         refreshOrders,
         createOrder,
         updateOrder,
+        importRoyalShipmentExport,
+        importRoyalStatementExport,
         getShops,
         getShopOrders,
         createShopOrder,

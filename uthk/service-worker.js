@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uthk-admin-shell-v12';
+const CACHE_NAME = 'uthk-admin-shell-v13';
 const APP_FILES = [
     './index.html',
     './style.css',
@@ -18,6 +18,7 @@ const APP_FILES = [
     './pages/createvoucher.html',
     './pages/createvoucher.js',
     './pages/royal-sync.html',
+    './pages/royal-import.js',
     './pages/checkstock.html',
     './pages/checkstock.js',
     './pages/shops.html',

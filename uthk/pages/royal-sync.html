@@ -2,26 +2,39 @@
 <html lang="my">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Royal ဘောက်ချာ | UTHK Admin</title>
+    <title>Royal Export Import | UTHK Admin</title>
     <link rel="icon" type="image/png" href="../logo.png"><link rel="apple-touch-icon" href="../icons/app-icon-192.png"><link rel="manifest" href="../manifest.webmanifest"><link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body><main class="page-shell">
-    <header class="page-top"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">Royal ဘောက်ချာနှင့် ပို့ဆောင်မှုအခြေအနေ</h1><p class="page-subtitle">ဖုန်းနံပါတ်ကိုက်ညီသည့် အမှာစာများကို အလိုအလျောက်စစ်ဆေးပါ။</p></div></header>
+    <header class="page-top"><a class="back-button" href="../index.html" aria-label="Home"><i class="fa-solid fa-arrow-left"></i></a><div><h1 class="page-title">Royal Export Import</h1><p class="page-subtitle">Royal Shipment နှင့် Statement Excel ဖိုင်များမှ Book Orders ကို update လုပ်ပါ။</p></div></header>
     <section class="panel">
-        <h2>အလိုအလျောက် Royal sync</h2>
-        <p class="search-hint">Royal မှ official API မပေးထားသည့်အတွက် Chrome extension က သင်ကိုယ်တိုင်ဝင်ထားသော Royal browser session ကို အသုံးပြုပါမည်။ <strong>Shipment</strong> စာရင်းကို တစ်မိနစ်တစ်ကြိမ် စစ်ပြီး waybill အသစ် သို့မဟုတ် အခြေအနေ/ငွေပမာဏ ပြောင်းလဲမှသာ Google Sheet ကို update လုပ်ပါမည်။ Royal password ကို extension က မဖတ်၊ မသိမ်းပါ။</p>
-        <ol class="royal-setup-steps">
-            <li>Google Apps Script ထဲသို့ <code>uthk/Code.gs</code> အသစ်ကိုတင်ပြီး လက်ရှိ Web App deployment ကို <strong>New version</strong> ဖြင့် update လုပ်ပါ။</li>
-            <li>Repository ရှိ <code>uthk/royal-extension</code> folder ကို Chrome ၏ <code>chrome://extensions</code> စာမျက်နှာမှ <strong>Developer mode → Load unpacked</strong> ဖြင့် ထည့်ပါ။ Extension ကို ယခင်ထည့်ပြီးသားဖြစ်ပါက ပြင်ဆင်ပြီးတိုင်း <strong>Reload</strong> လုပ်ပါ။</li>
-            <li>Royal member account ထဲဝင်ပြီး <strong>Your Shipments</strong> စာမျက်နှာကို ဖွင့်ထားပါ။</li>
-            <li>Shipment စာရင်းအပေါ်မှာ UTHK sync အခြေအနေကို မြင်ရပါမည်။ Pause/Resume ကို extension icon မှ ပြောင်းနိုင်ပါသည်။</li>
-            <li><strong>Statement</strong> detail စာမျက်နှာကိုဖွင့်ထားပါ။ Extension က Royal VOC, Weight, COD Amount, Delivery, COD Charges, Paid Charges နှင့် Paid Date ကို အလိုအလျောက်စစ်ပြီး လက်ရှိ sheet ရှိ Royal Voucher ကိုက်ညီသည့် row တွင် ဖြည့်ပါမည်။</li>
-        </ol>
-        <p class="search-hint">Statement အချက်အလက်ကို သီးခြား Royal Statement columns ထဲသို့သာရေးပြီး order ၏ မူရင်း Weight, Delivery Fees နှင့် Pay Date ကို မပြောင်းပါ။ Royal Voucher မတွေ့ခြင်း သို့မဟုတ် sheet ထဲတွင် ထပ်နေခြင်းကို မရေးဘဲ အခြေအနေပြပါမည်။</p>
+        <h2>Royal Shipment Export</h2>
+        <p class="search-hint">Royal မှ Shipment ကို Excel (.xlsx) အဖြစ် export လုပ်ပြီး ရွေးပါ။ Royal Voucher မရှိသေးသော order များကို Receiver ဖုန်းနံပါတ်ဖြင့် match လုပ်မည်။ State ကို Delivery Notes ထဲသို့ထည့်ပါမည်။ Export ထဲက blank cell များကြောင့် Sheet ရှိအဟောင်းတန်ဖိုးကို မဖျက်ပါ။</p>
+        <div class="field">
+            <label for="shipment-export">Shipment Excel ဖိုင်</label>
+            <input id="shipment-export" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </div>
+        <p id="shipment-status" class="status-message" aria-live="polite">Shipment export ကို ရွေးပါ။</p>
+        <div class="button-row"><button id="import-shipment" class="primary-button" type="button" disabled>Shipment Import လုပ်ရန်</button></div>
+    </section>
+    <section class="panel">
+        <h2>Royal Statement Export</h2>
+        <p class="search-hint">Statement Excel (.xlsx) ကိုတင်ပါ။ Royal Voucher/Waybill ဖြင့် match လုပ်ပြီး COD Charges, Paid Amount နှင့် Paid Date ကိုသာ ပြင်ဆင်ပါမည်။ မကိုက်ညီသော သို့မဟုတ် duplicate row များကို မရေးပါ။</p>
+        <div class="field">
+            <label for="statement-export">Statement Excel ဖိုင်</label>
+            <input id="statement-export" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        </div>
+        <p id="statement-status" class="status-message" aria-live="polite">Statement export ကို ရွေးပါ။</p>
+        <div class="button-row"><button id="import-statement" class="primary-button" type="button" disabled>Statement Import လုပ်ရန်</button></div>
+    </section>
+    <section class="panel">
+        <h2>Royal Member</h2>
+        <p class="search-hint">Excel ဖိုင်ကို browser ထဲတွင်ဖတ်ပြီး ဖိုင်မူရင်းကို upload မလုပ်ပါ။ Import လုပ်သော mapped row များကိုသာ သင့် Google Apps Script Web App မှတစ်ဆင့် Sheet သို့ပို့ပါမည်။ အသုံးမပြုမီ <code>uthk/Code.gs</code> ကို Apps Script ထဲတင်ပြီး Web App ကို <strong>New version</strong> ဖြင့် deploy လုပ်ပါ။ ယခင် Chrome extension ကို Chrome ၏ <code>chrome://extensions</code> မှ uninstall လုပ်ပါ။</p>
         <div class="button-row">
             <a class="primary-button" href="https://member.royalx.biz/shipment" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Royal Shipments ဖွင့်ရန်</a>
         </div>
     </section>
 </main>
+<script src="admin-api.js"></script><script src="royal-import.js"></script>
 </body></html>
