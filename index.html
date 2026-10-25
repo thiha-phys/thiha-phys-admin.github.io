@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#176b57">
     <title>စာအုပ်မှာယူရန်</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body data-page="customer">
@@ -17,11 +19,13 @@
       <nav class="navigation">
         <a class="nav-link active" href="./index.html">စာအုပ်မှာယူရန်</a>
         <a class="nav-link" href="./admin.html">Admin</a>
+        <button class="nav-link" id="installApp" type="button" hidden>Install app</button>
       </nav>
       <div id="orderApp"></div>
       <footer>စာအုပ်အော်ဒါဝန်ဆောင်မှု</footer>
     </main>
     <script src="./firebase.js"></script>
     <script src="./app.js"></script>
+    <script src="./pwa.js"></script>
   </body>
 </html>

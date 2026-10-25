@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#176b57">
     <title>Order Admin</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body data-page="admin">
@@ -21,6 +23,7 @@
         <button class="nav-link active" id="createTab" type="button">Create Order</button>
         <button class="nav-link" id="historyTab" type="button">Order History</button>
         <a class="nav-link" href="./index.html">Customer app</a>
+        <button class="nav-link" id="installApp" type="button" hidden>Install app</button>
       </nav>
       <section id="createPanel">
         <div id="orderApp"></div>
@@ -40,5 +43,6 @@
     </main>
     <script src="./firebase.js"></script>
     <script src="./app.js"></script>
+    <script src="./pwa.js"></script>
   </body>
 </html>

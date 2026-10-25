@@ -19,3 +19,7 @@ Firebase database URL ကို `firebase.js` တွင်ထားသည်။ 
 **စမ်းသပ်ရန်သာ:** Admin login/auth မထည့်ထားပါ။ Firebase order data ထဲတွင် အမည်၊ ဖုန်းနှင့် လိပ်စာများပါမည်။ Database ကို အများပြည်သူဖတ်/ရေးခွင့်ဖွင့်ထားလျှင် မည်သူမဆို order data ကို ဖတ်နိုင်/ပြင်နိုင်သည်။ စမ်းသပ်ဒေတာသာသုံးပါ။ တကယ့် customer data အသုံးမပြုမီ Firebase Authentication နှင့် database rules ဖြင့် Admin ဖတ်ရှုခွင့်ကို ကာကွယ်ပါ။
 
 Local testing အတွက် repository root ကို static file server ဖြင့်ဖွင့်ပါ (ဥပမာ `python3 -m http.server 8080`), ထို့နောက် `/` နှင့် `/admin.html` ကိုစမ်းသပ်ပါ။ `file://` ဖြင့်ဖွင့်ပါက JSON fetch ကို browser က ပိတ်နိုင်သည်။
+
+## Browser app အဖြစ် install လုပ်ရန်
+
+HTTPS ဖြင့် host လုပ်ထားသော site ကို Chrome သို့မဟုတ် Edge တွင်ဖွင့်ပါ။ Browser က install လုပ်နိုင်ကြောင်း သတ်မှတ်ပါက navigation ထဲရှိ **Install app** ကိုနှိပ်ပါ၊ သို့မဟုတ် browser menu မှ **Install app** ကိုရွေးပါ။ iPhone/iPad တွင် Safari ၏ Share menu မှ **Add to Home Screen** ကိုရွေးပါ။ Service worker က app ဖိုင်များကို offline အတွက်သိမ်းထားသော်လည်း အော်ဒါတင်ခြင်းနှင့် Firebase မှ history ဖတ်ခြင်းအတွက် အင်တာနက်လိုအပ်သည်။
