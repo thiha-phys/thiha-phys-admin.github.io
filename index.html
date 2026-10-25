@@ -1,15 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Redirecting...</title>
-    <script>
-        // book_order_app ထဲသို့ အလိုအလျောက် ပို့ပေးရန်
-        window.location.replace("./book_order_app/customer/"); 
-        // (သို့) customer နဲ့ admin ဘယ်နေရာကို ပို့ချင်တာလဲပေါ်မူတည်ပြီး ပြင်နိုင်ပါတယ်
-    </script>
-</head>
-<body>
-    <p>Redirecting to <a href="./book_order_app/">Book Order App</a>...</p>
-</body>
+<!doctype html>
+<html lang="my">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#176b57">
+    <title>စာအုပ်မှာယူရန်</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body data-page="customer">
+    <main class="container">
+      <header class="hero">
+        <div class="eyebrow">BOOK ORDER</div>
+        <h1>စာအုပ်မှာယူရန်</h1>
+        <p>စာအုပ်နှင့် အရေအတွက်ကိုရွေးပါ၊ ကျသင့်ငွေကို ကြည့်ပြီး အော်ဒါတင်ပါ။</p>
+      </header>
+      <nav class="navigation">
+        <a class="nav-link active" href="./index.html">စာအုပ်မှာယူရန်</a>
+        <a class="nav-link" href="./admin.html">Admin</a>
+      </nav>
+      <div id="orderApp"></div>
+      <footer>စာအုပ်အော်ဒါဝန်ဆောင်မှု</footer>
+    </main>
+    <script src="./firebase.js"></script>
+    <script src="./app.js"></script>
+  </body>
 </html>

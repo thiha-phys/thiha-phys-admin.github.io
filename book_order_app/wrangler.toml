@@ -1,8 +1,0 @@
-name = "book-order-api"
-main = "worker.js"
-compatibility_date = "2026-10-25"
-
-[vars]
-# Replace with the exact origin(s) where your customer/admin website is hosted.
-# Example: ALLOWED_ORIGINS = "https://your-site.pages.dev,https://yourdomain.com"
-ALLOWED_ORIGINS = "http://localhost:8080"

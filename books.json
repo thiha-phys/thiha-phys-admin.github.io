@@ -1,0 +1,9 @@
+[
+  {"id":"textbook","name":"သင်ရိုးကုန် အထူထုတ်","weight":0.7,"prices":[20000,19000,18000,17000]},
+  {"id":"practice","name":"Practice Book","weight":0.5,"prices":[13000,11000,10500,10000]},
+  {"id":"past_questions","name":"မေးခွန်းဟောင်း","weight":0.5,"prices":[11000,10500,10000,9500]},
+  {"id":"calculation","name":"တွက်စာ သီးသန့်","weight":0.12,"prices":[5000,4500,4000,4000]},
+  {"id":"g11_handbook","name":"Grade 11 Handbook","weight":0.4,"prices":[10000,9000,8500,8500]},
+  {"id":"g11_objective","name":"Grade 11 Objective Book","weight":0.3,"prices":[8000,7500,7000,7000]},
+  {"id":"g10_handbook","name":"Grade 10 Handbook","weight":0.35,"prices":[10000,9000,8500,8500]}
+]

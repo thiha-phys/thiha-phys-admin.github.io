@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="my">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#176b57">
+    <title>Order Admin</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body data-page="admin">
+    <main class="container">
+      <header class="hero">
+        <div class="eyebrow">ORDER ADMIN</div>
+        <h1>အော်ဒါစီမံခန့်ခွဲမှု</h1>
+        <p>Create Order နှင့် Order History</p>
+      </header>
+      <div class="warning" role="note">
+        စမ်းသပ်ရန်သာ — လက်ရှိ Firebase စည်းမျဉ်းများအရ database ကို ဝင်ရောက်သူတိုင်း အော်ဒါများကို ဖတ်နိုင်နိုင်သည်။ အမှန်တကယ် ဝယ်သူအချက်အလက် မသုံးပါနှင့်။
+      </div>
+      <nav class="navigation tabs" aria-label="Admin စာမျက်နှာများ">
+        <button class="nav-link active" id="createTab" type="button">Create Order</button>
+        <button class="nav-link" id="historyTab" type="button">Order History</button>
+        <a class="nav-link" href="./index.html">Customer app</a>
+      </nav>
+      <section id="createPanel">
+        <div id="orderApp"></div>
+      </section>
+      <section id="historyPanel" hidden>
+        <div class="section-heading">
+          <div>
+            <h2>Order History</h2>
+            <p id="orderCount" class="muted">Firebase မှ မှတ်တမ်းကို ဖတ်ပါမည်။</p>
+          </div>
+          <button class="button secondary" id="refreshOrders" type="button">ပြန်ဖတ်ရန်</button>
+        </div>
+        <div id="historyStatus" class="status" role="status" aria-live="polite"></div>
+        <div id="orders" class="order-list"></div>
+      </section>
+      <footer>စာအုပ်အော်ဒါဝန်ဆောင်မှု</footer>
+    </main>
+    <script src="./firebase.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
