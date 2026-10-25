@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="my"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>စာအုပ်မှာယူရန်</title><link rel="stylesheet" href="../shared/styles.css"></head>
+<body><main class="shell"><header class="hero"><h1>📚 စာအုပ်မှာယူရန်</h1><p>လိုအပ်သောစာအုပ်များကို ရွေးချယ်ပြီး အော်ဒါတင်နိုင်ပါသည်။</p></header>
+<div class="notice">ဈေးနှုန်းသည် စာအုပ်တစ်မျိုးချင်းစီ၏ အရေအတွက်အလိုက် အလိုအလျောက်ပြောင်းလဲပါမည်။</div>
+<div class="section-title"><h2>စာအုပ်ရွေးချယ်ရန်</h2><span class="muted">အလေးချိန်အလိုအလျောက်တွက်မည်</span></div><div id="books" class="grid"></div>
+<div class="section-title"><h2>ပို့ဆောင်ရေးအချက်အလက်</h2></div><section class="panel"><div class="cols"><div class="field"><label>ဝယ်သူအမည် *</label><input id="name" autocomplete="name" placeholder="အမည်ထည့်ပါ"></div><div class="field"><label>ဖုန်းနံပါတ် *</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="09xxxxxxxxx"></div></div>
+<div class="field"><label>လိပ်စာအပြည့်အစုံ *</label><textarea id="address" placeholder="ရပ်ကွက်၊ လမ်း၊ အိမ်အမှတ် စသည်"></textarea></div>
+<div class="field"><label>ပို့ဆောင်မည့်မြို့ *</label><div class="citywrap"><input id="citySearch" autocomplete="off" placeholder="နှိပ်ပြီး မြို့ရွေးပါ (ရ / y ဖြင့်ရှာနိုင်သည်)"><div id="cityList" class="citylist"></div></div><div id="cityPicked" class="muted">မြို့မရွေးရသေးပါ</div></div>
+<div class="field"><label>မှတ်ချက် (မဖြစ်မနေမဟုတ်)</label><textarea id="note" placeholder="အော်ဒါအတွက် မှတ်ချက်ရှိပါက ထည့်ပါ"></textarea></div></section>
+<section class="summary"><div class="sumrow"><span>စာအုပ်အရေအတွက်</span><strong id="count">0 အုပ်</strong></div><div class="sumrow"><span>စုစုပေါင်းအလေးချိန်</span><strong id="weight">0 kg</strong></div><div class="sumrow"><span>စာအုပ်ဖိုး</span><strong id="bookTotal">0 ကျပ်</strong></div><div class="sumrow"><span>ပို့ခ</span><strong id="delivery">မြို့ရွေးပါ</strong></div><div class="sumrow grand"><span>စုစုပေါင်း</span><strong id="grand">0 ကျပ်</strong></div><button id="submit" class="primary" style="margin-top:12px">အော်ဒါတင်မည်</button><div id="status" class="status" role="status"></div></section>
+<footer class="muted" style="text-align:center;margin-top:24px">Book Order System</footer></main><script src="../shared/common.js"></script><script src="./app.js"></script></body></html>
