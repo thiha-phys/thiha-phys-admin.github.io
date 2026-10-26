@@ -1,6 +1,6 @@
 (() => {
   const $ = id => document.getElementById(id);
-  const databaseUrl = window.ORDER_APP_CONFIG.databaseUrl.replace(/\/+$/, "");
+  const apiUrl = window.ORDER_APP_CONFIG.apiUrl.replace(/\/+$/, "");
   const isAdmin = document.body.dataset.page === "admin";
   const money = amount => `${Math.round(Number(amount) || 0).toLocaleString("en-US")} ကျပ်`;
   const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -25,7 +25,7 @@
   async function request(path, options = {}) {
     let response;
     try {
-      response = await fetch(`${databaseUrl}/${path}.json`, {
+      response = await fetch(`${apiUrl}/${path}`, {
         ...options,
         headers: { "Content-Type": "application/json", ...(options.headers || {}) }
       });

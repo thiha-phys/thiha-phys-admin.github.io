@@ -1,0 +1,6 @@
+name = "book-orders-api"
+main = "worker.js"
+compatibility_date = "2026-10-26"
+
+[vars]
+ALLOWED_ORIGIN = "https://thiha-phys-admin.github.io"

@@ -14,7 +14,24 @@ Build tool မလိုသော root-level static app:
 
 ပို့ခကို spreadsheet ရှိ သက်ဆိုင်ရာမြို့၏ ၂ kg အထိ နှုန်းထားပေါ် အခြေခံပြီး ၂ kg ကျော်သော အလေးချိန် တစ် kg စီ (စတင်ကျော်သည့် အပိုင်းပါဝင်) အတွက် `nextKg` နှုန်းထားထပ်ပေါင်း၍ တွက်သည်။ တွက်ချက်ရာတွင် စာအုပ်တစ်အုပ်ချင်း၏ အလေးချိန်ကိုသုံးပြီး customer app နှင့် admin app နှစ်ခုလုံးတွင် ပို့ခနှင့် စုစုပေါင်းကို ချက်ချင်းပြသည်။
 
-Firebase database URL ကို `firebase.js` တွင်ထားသည်။ Browser မှ Realtime Database REST API ကို တိုက်ရိုက်ခေါ်သောကြောင့် database rules က `/bookOrders` ကို create/read လုပ်ခွင့်ပေးရမည်။ Firebase URL ကို စမ်းသပ်ကြည့်ရာ database မှ HTTP 200 ပြန်ရသော်လည်း ဒီစစ်ဆေးမှုသည် order ရေးခွင့်ကို မစမ်းသပ်ထားပါ။
+Firebase data ကို Cloudflare Worker API မှတစ်ဆင့် ခေါ်သည်။ `firebase.js` ထဲရှိ `apiUrl` ကို deploy ပြီးသော Worker URL ဖြင့် အစားထိုးပါ။ Worker သည် `FIREBASE_DATABASE_URL` secret မှတစ်ဆင့် Realtime Database ကို ခေါ်သည်။
+
+## Cloudflare Worker API တပ်ဆင်ရန်
+
+`worker.js` နှင့် `wrangler.toml` ကို Cloudflare Workers project အဖြစ် deploy လုပ်ပါ။ Cloudflare Dashboard တွင် အောက်ပါ Worker variable/secret များထည့်ပါ။
+
+- Secret: `FIREBASE_DATABASE_URL` = `https://test-51e64-default-rtdb.asia-southeast1.firebasedatabase.app`
+- Variable: `ALLOWED_ORIGIN` = `https://thiha-phys-admin.github.io`
+
+Wrangler သုံးမည်ဆိုလျှင်:
+
+```text
+npx wrangler login
+npx wrangler secret put FIREBASE_DATABASE_URL
+npx wrangler deploy
+```
+
+Deploy ပြီးလျှင် ရလာသော `https://....workers.dev` URL ကို `firebase.js` ထဲရှိ `apiUrl` နေရာတွင် ထည့်ပြီး GitHub Pages သို့ ပြန် publish လုပ်ပါ။ Worker သည် လက်ရှိ app အသုံးပြုသော `/bookOrders` GET နှင့် POST နှစ်မျိုးကိုသာ ခွင့်ပြုထားသည်။
 
 **စမ်းသပ်ရန်သာ:** Admin login/auth မထည့်ထားပါ။ Firebase order data ထဲတွင် အမည်၊ ဖုန်းနှင့် လိပ်စာများပါမည်။ Database ကို အများပြည်သူဖတ်/ရေးခွင့်ဖွင့်ထားလျှင် မည်သူမဆို order data ကို ဖတ်နိုင်/ပြင်နိုင်သည်။ စမ်းသပ်ဒေတာသာသုံးပါ။ တကယ့် customer data အသုံးမပြုမီ Firebase Authentication နှင့် database rules ဖြင့် Admin ဖတ်ရှုခွင့်ကို ကာကွယ်ပါ။
 
