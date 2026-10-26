@@ -21,7 +21,7 @@ Firebase data ကို Cloudflare Worker API မှတစ်ဆင့် ခေ
 `worker.js` နှင့် `wrangler.toml` ကို Cloudflare Workers project အဖြစ် deploy လုပ်ပါ။ Cloudflare Dashboard တွင် အောက်ပါ Worker variable/secret များထည့်ပါ။
 
 - Secret: `FIREBASE_DATABASE_URL` = `https://test-51e64-default-rtdb.asia-southeast1.firebasedatabase.app`
-- Variable: `ALLOWED_ORIGIN` = `https://thiha-phys-admin.github.io`
+- Variable (plain text, not a secret): `ALLOWED_ORIGIN` = `https://thiha-phys.github.io`
 
 Wrangler သုံးမည်ဆိုလျှင်:
 

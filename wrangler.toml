@@ -3,4 +3,4 @@ main = "worker.js"
 compatibility_date = "2026-10-26"
 
 [vars]
-ALLOWED_ORIGIN = "https://thiha-phys-admin.github.io"
+ALLOWED_ORIGIN = "https://thiha-phys.github.io"
